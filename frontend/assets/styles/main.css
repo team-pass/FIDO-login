@@ -1,0 +1,10 @@
+/* Custom CSS Variables */
+:root {
+  --spacing: 2rem;
+}
+
+/* Login CSS */
+.team-logo {
+  display: block;
+  margin: var(--spacing) auto;
+}
