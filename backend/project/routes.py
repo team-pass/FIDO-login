@@ -56,6 +56,5 @@ def register():
 
 # PLACEHOLDER---page doesn't exist as of now
 @app.route('/profile')
-@login_required
 def profile():
     return render_template('profile.html')
