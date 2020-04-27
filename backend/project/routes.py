@@ -1,8 +1,9 @@
 #### ROUTING IMPLEMENTATION ####
 
 
-from flask import request, session, render_template, url_for
+from flask import request, session, render_template, url_for, redirect
 from project import app, bcrypt, dbconnection, dbcursor
+import project
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -11,11 +12,12 @@ def login():
     # If user enters form data and session cookie has no record of username:
     if request.method == 'POST' and 'username' not in session:
         # Query database for provided username
-        dbcursor.execute('SELECT username, password FROM users WHERE username = %s', (request.form['username'],))
+        dbcursor.execute('SELECT email, pass FROM test WHERE email = %s', (request.form['email'],))
         # Save query result (tuple if found, `None` otherwise)
         result = dbcursor.fetchone()
         # Verify provided password
-        if result and bcrypt.check_password_hash(result, request.form['password']):
+        pw_hash = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+        if result and bcrypt.check_password_hash(pw_hash, result[1]):
             # Save username as validation of login
             session['username'] = result[0]
             # Redirect user to profile page (back to login page for now)
@@ -34,7 +36,7 @@ def logout():
 
 
 @app.route('/registration', methods=['GET', 'POST'])
-def register():    
+def register():
     # If user enters form data and session cookie has no record of username:
     if request.method == 'POST' and 'username' not in session:
         # Proceed if provided username is not already taken
