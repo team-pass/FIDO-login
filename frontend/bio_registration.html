@@ -11,7 +11,7 @@
     <!-- SEO meta tags -->
     <meta
       name="description"
-      content="This is a registration page created by Team PASS: an undergraduate Gemstone research team from UMD studying cybersecurity."
+      content="This is a FIDO biometric registration page created by Team PASS: an undergraduate Gemstone research team from UMD studying cybersecurity."
     />
     <meta name="author" content="Team Pass" />
 
@@ -24,7 +24,7 @@
     />
     <link rel="stylesheet" href="./assets/styles/main.css" type="text/css" />
 
-    <title>Team PASS | Registration</title>
+    <title>Team PASS | Biometric Registration</title>
     <link rel="icon" type="image/png" href="favicon.png" />
   </head>
   <body>
@@ -35,36 +35,12 @@
         class="team-logo"
       />
       <section class="row justify-content-center">
-        <div class="col-6 card">
+		<!-- Everything here is just the display, we will probably use a script to implement the biometric scanner-->
+        <div class="col-4 card">
           <div class="card-body">
-            <h3 class="card-title">Registration</h3>
+   		    <div class="card text-center" style="font-size: 20px;"><b>Register with your biometric</b></div>
 
-            <!--Login Form-->
-            <form action="./account.html" method="get">
-              <div class="form-group">
-                <label for="email">Email address</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  name="email"
-                />
-              </div>
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" name="password" />
-              </div>
-	      <div class="form-group">
-                <label for="password">Confirm Password</label>
-                <input type="password" class="form-control" id="confirm_password" />
-              </div>
-              <button type="submit" class="btn btn-primary" value="Submit">Submit</button>
-			  
-			  <!-- link to bio_registration.html, little fingerprint icon to indicate biometric registration-->
-              <a href = "bio_registration.html"><img src = "assets/images/fingerprint.png" height="42" width="42" style="float: right;"></a>
-			  
-			  
-			  <small class="form-text text-muted">Already have an account? Login <a href="./index.html">here</a></small>
-            </form>
+            <img src="assets/images/fingerprint2.jpg" height="300" width="300">
           </div>
         </div>
       </section>
