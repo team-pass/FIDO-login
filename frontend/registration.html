@@ -40,24 +40,53 @@
             <h3 class="card-title">Registration</h3>
 
             <!--Login Form-->
-            <form action="./account.html" method="get">
-              <div class="form-group">
-                <label for="email">Email address</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  name="email"
-                />
+            <form id="auth-form" action="./account.html" method="get">
+              <div id="main-inputs-container">
+                <!-- Password registration form -->
+                <section id="password-inputs">
+                  <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control" id="email" />
+                  </div>
+                  <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" />
+                  </div>
+                  <div class="form-group">
+                    <label for="confrim-password">Confirm Password</label>
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="confrim-password"
+                    />
+                  </div>
+                </section>
+                <!-- Biometric registration form -->
+                <section id="biometric-inputs">
+                  <div class="form-group">
+                    <label for="biometric">Biometric</label>
+                    <input class="form-control" id="biometric" />
+                  </div>
+                </section>
               </div>
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" name="password" />
-              </div>
-	      <div class="form-group">
-                <label for="password">Confirm Password</label>
-                <input type="password" class="form-control" id="confirm_password" />
-              </div>
-              <button type="submit" class="btn btn-primary" value="Submit">Submit</button>
+              <section
+                class="d-flex justify-content-between align-items-center"
+              >
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <!-- Auth method toggler -->
+                <div id="auth-method-toggler" class="switch-track">
+                  <div class="roller">
+                    <img
+                      class="icon password"
+                      src="assets/images/password.svg"
+                    />
+                    <img
+                      class="icon biometric"
+                      src="assets/images/fingerprint.svg"
+                    />
+                  </div>
+                </div>
+              </section>
               <small class="form-text text-muted"
                 >Already have an account? Login
                 <a href="./index.html">here</a></small
@@ -67,6 +96,9 @@
         </div>
       </section>
     </main>
+
+    <!-- Custom JS: UI for swapping authorization methods -->
+    <script src="scripts/authMethodToggler.js"></script>
 
     <!-- Bootstrap JS Libraries (jQuery, Popper, and Bootstrap) -->
     <script
