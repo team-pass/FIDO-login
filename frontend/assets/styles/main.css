@@ -14,6 +14,16 @@ main {
   margin: 0 auto var(--spacing);
 }
 
+.bioregistration_link{
+	float: right;
+	height: 42px;
+	width: 42px;
+}
+
+.bioregistration_page_image{
+	height: 300px;
+	width: 300px; 
+}
 /* Game CSS */
 #snake-game {
   margin: 0 auto;
