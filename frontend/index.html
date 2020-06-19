@@ -39,22 +39,49 @@
           <div class="card-body">
             <h3 class="card-title">FIDO Login</h3>
 
-            <!--Login Form-->
-            <form method="post">
-              <div class="form-group">
-                <label for="email">Email address</label>
-                <input type="email" class="form-control" id="email" name="email" />
-              </div>
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" />
-              </div>
-              <button type="submit" class="btn btn-primary">Submit</button>
-              <small class="form-text text-muted"
-                >Don't have an account? Register
-                <a href="./registration.html">here</a></small
-              >
-            </form>
+
+	    <ul class="nav nav-tabs justify-content-center mb-3" role="tablist">
+	      <li class="active nav-item"><a class="nav-link active" data-toggle="tab" href="#password-login-menu">Use a Password</a></li>
+	      <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#biometric-login-menu">Use your Biometrics</a></li>
+	    </ul>
+	    
+	    <div class="tab-content">
+	      
+	      <div id="password-login-menu" class="tab-pane active">
+		<!--Login Form using password-->
+		<form>
+		  <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control" id="email" />
+		  </div>
+		  <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" />
+		  </div>
+		  <button type="submit" class="btn btn-primary">Submit</button>
+		  <small class="form-text text-muted"
+			 >Don't have an account? Register
+                    <a href="./registration.html">here</a></small
+							    >
+		</form>
+	      </div>
+
+	      <div id="biometric-login-menu" class="tab-pane fade">
+		<!--Login Form using password-->
+		<form>
+		  <div class="form-group">
+                    <label for="email">Biometric</label>
+                    <input type="email" class="form-control" id="email" />
+		  </div>
+		  <button type="submit" class="btn btn-primary">Submit</button>
+		  <small class="form-text text-muted"
+			 >Don't have an account? Register
+                    <a href="./registration.html">here</a></small
+							    >
+		</form>
+	      </div>
+	      
+	    </div>
           </div>
         </div>
       </section>
