@@ -41,14 +41,20 @@
             <p>
               <strong>Favorite number:</strong> <span id="fav-num">20</span>
             </p>
+            
+  <!-- Change Made from here -->
+            <div class="form-group">
+              <canvas
+                width="400"
+                height="400"
+                id="snake-game"
+                class="card"
+              ></canvas>
+            </div>
 
-            <canvas
-              width="400"
-              height="400"
-              id="snake-game"
-              class="card"
-            ></canvas>
-
+            <button id="btnRevoke" type="button" class="btn btn-primary" value="Revoke_Cred" onclick="fetchBack();">Revoke Credentials</button>
+            
+  <!-- To Here -->
             <small class="form-text text-muted"
               >Go back to
               <a href="./registration.html">registration</a>
@@ -60,7 +66,31 @@
 
     <!-- Custom JS (the snake game) -->
     <script src="./scripts/snake-game.js"></script>
+  <!-- Change Made from here -->
+    <script>
+      function fetchBack(){
+        const myHeaders = new Headers();
 
+        const myRequest = new Request('/revoke-credentials', {
+          method: 'GET',
+          headers: myHeaders,
+          mode: 'cors',
+          cache: 'default',
+        });
+
+        fetch(myRequest)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error();
+            }
+            return response.blob();
+          })
+          .catch(error => {
+            alert("Server error: unable to revoke credentials");
+          });
+      }
+    </script>
+  <!-- To here -->
     <!-- Bootstrap JS Libraries (jQuery, Popper, and Bootstrap) -->
     <script
       src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
