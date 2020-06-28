@@ -1,10 +1,8 @@
-#### ROUTING IMPLEMENTATION ####
-
+""" API ROUTE IMPLEMENTATION """
 
 from flask import request, session, render_template, url_for, redirect
 from project import app, bcrypt, dbconnection, dbcursor
 import project
-
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
