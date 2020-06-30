@@ -1,4 +1,4 @@
-#### RUN THIS TO START BACKEND CODE ####
+"""RUN THIS TO START BACKEND CODE"""
 
 from project import app
 
