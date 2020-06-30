@@ -6,7 +6,9 @@ import mysql.connector as mariadb
 from dotenv import load_dotenv
 import os
 
+# Set the local environment based on a `backend/.env` file
 load_dotenv()
+
 # Create instance of Flask application
 app = Flask(__name__, template_folder=os.path.abspath('../frontend'))
 # Apparently setting `SECRET_KEY` helps against XSS
