@@ -11,7 +11,7 @@
     <!-- SEO meta tags -->
     <meta
       name="description"
-      content="This is a user account page created by Team PASS: an undergraduate Gemstone research team from UMD studying cybersecurity."
+      content="This is a registration page created by Team PASS: an undergraduate Gemstone research team from UMD studying cybersecurity."
     />
     <meta name="author" content="Team Pass" />
 
@@ -22,44 +22,61 @@
       integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="./assets/styles/main.css" type="text/css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/main.css') }}"
+      type="text/css"
+    />
 
-    <title>Team PASS | User Account</title>
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <title>Team PASS | Registration</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/favicon.png') }}"
+    />
   </head>
   <body>
     <main class="container">
       <img
-        src="./assets/images/team-logo.svg"
+        src="{{ url_for('static', filename='images/team-logo.svg') }}"
         alt="Team PASS Logo"
         class="team-logo"
       />
       <section class="row justify-content-center">
         <div class="col-6 card">
           <div class="card-body">
-            <h3 class="card-title">test@user.com's Account</h3>
-            <p>
-              <strong>Favorite number:</strong> <span id="fav-num">20</span>
-            </p>
+            <h3 class="card-title">Registration</h3>
 
-            <canvas
-              width="400"
-              height="400"
-              id="snake-game"
-              class="card"
-            ></canvas>
-
-            <small class="form-text text-muted"
-              >Go back to
-              <a href="./registration.html">registration</a>
-            </small>
+            <!--Registration Form-->
+            <form method="POST">
+              <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" class="form-control" name="email" />
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" name="password" />
+              </div>
+              <div class="form-group">
+                <label for="password">Confirm Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="confirm_password"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary" value="Submit">
+                Submit
+              </button>
+              <small class="form-text text-muted"
+                >Already have an account? Login
+                <a href="{{ url_for('login') }}">here</a></small
+              >
+            </form>
           </div>
         </div>
       </section>
     </main>
-
-    <!-- Custom JS (the snake game) -->
-    <script src="./scripts/snake-game.js"></script>
 
     <!-- Bootstrap JS Libraries (jQuery, Popper, and Bootstrap) -->
     <script
