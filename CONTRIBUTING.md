@@ -14,7 +14,16 @@ git clone https://github.com/team-pass/FIDO-login.git
 
 If you haven't already, take a brief look at [how git works](https://guides.github.com/introduction/git-handbook/)
 
-4. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/)).
+1. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in the the root of the project. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/)). Our `.env` looks something like this:
+
+```bash
+FLASK_SECRET_KEY="some secret key"
+DB_NAME="some database name"
+DB_HOST="some IP address"
+DB_USER="some username"
+DB_PASSWORD="some password"
+```
+
 5. Setup and activate a Python virtual environment (see the [official Python docs on venv](https://docs.python.org/3/tutorial/venv.html)).
 6. Install the necessary Python packages using
 

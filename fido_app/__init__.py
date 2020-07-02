@@ -12,18 +12,19 @@ load_dotenv()
 
 # Create instance of Flask application
 app = Flask(__name__)
+
 # Apparently setting `SECRET_KEY` helps against XSS
-app.config['SECRET_KEY'] = os.getenv('Flask_SECRET_KEY')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 
 # Create usable instance of encryptor
 bcrypt = Bcrypt(app)
 
 # Establish database connection
 dbconnection = mariadb.connect(
-    user=os.getenv('db_user'),
-    password=os.getenv('db_pass'),
-    database='team_pass',
-    host='98.218.4.51',
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD'),
+    database=os.getenv('DB_NAME'),
+    host=os.getenv('DB_HOST'),
 )
 dbcursor = dbconnection.cursor()
 
