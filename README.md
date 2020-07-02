@@ -25,7 +25,7 @@ pip install -r requirements.txt # Downloads all required Python packages
 python run.py                   # Runs the server in development mode
 ```
 
-⚠️ If you get errors about connecting to the database, make sure your environment variables are properly configured. ⚠️
+If you get errors about connecting to the database, make sure your environment variables are properly configured. You can check out our contribution guide for more detailed [setup instructions](CONTRIBUTING.md#-download-and-setup).
 
 
 ## 👨‍💻 Contribution Guide
