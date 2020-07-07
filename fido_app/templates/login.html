@@ -47,6 +47,9 @@
           <div class="card-body">
             <h3 class="card-title">FIDO Login</h3>
 
+            {% import 'messages.html' as messages %}
+            {{ messages.flasher() }}
+
             <ul class="nav nav-tabs justify-content-center mb-3" role="tablist">
               <li class="active nav-item">
                 <a
@@ -69,14 +72,26 @@
             <div class="tab-content">
               <div id="password-login-menu" class="tab-pane active">
                 <!--Login Form using password-->
-                <form>
+                <form method="POST">
                   <div class="form-group">
-                    <label for="username">Email address</label>
-                    <input type="username" class="form-control" id="username" />
+                    <label for="email">Email address</label>
+                    <input
+                      name="email"
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      required
+                    />
                   </div>
                   <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" />
+                    <input
+                      name="password"
+                      type="password"
+                      class="form-control"
+                      id="password"
+                      required
+                    />
                   </div>
                   <button type="submit" class="btn btn-primary">Submit</button>
                   <small class="form-text text-muted"
@@ -87,11 +102,16 @@
               </div>
 
               <div id="biometric-login-menu" class="tab-pane fade">
-                <!--Login Form using password-->
+                <!--Login Form using biometrics-->
                 <form method="POST">
                   <div class="form-group">
-                    <label for="email">Biometric</label>
-                    <input type="email" class="form-control" id="email" />
+                    <label for="biometric">Biometric</label>
+                    <input
+                      name="biometric"
+                      class="form-control"
+                      id="biometric"
+                      required
+                    />
                   </div>
                   <button type="submit" class="btn btn-primary">Submit</button>
                   <small class="form-text text-muted"
