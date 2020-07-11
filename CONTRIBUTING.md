@@ -14,7 +14,7 @@ git clone https://github.com/team-pass/FIDO-login.git
 
 If you haven't already, take a brief look at [how git works](https://guides.github.com/introduction/git-handbook/)
 
-1. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in the the root of the project. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/)). Our `.env` looks something like this:
+4. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in the the root of the project. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/)). Our `.env` looks something like this:
 
 ```bash
 FLASK_SECRET_KEY="some secret key"
