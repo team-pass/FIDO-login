@@ -1,3 +1,11 @@
-.env
-backend/.env
-backend/project/__pycache__/*
+# Environment variable files
+**/.env
+
+# Pycache
+**/__pycache__
+
+# Virtual environment exclusions
+**/venv
+
+# Vscode settings
+**/.vscode

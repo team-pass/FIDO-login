@@ -1,35 +1,37 @@
-""" BACKEND PROJECT PACKAGE INITIALIZATION """
+''' BACKEND PROJECT PACKAGE INITIALIZATION '''
 
 from flask import Flask
 from flask_bcrypt import Bcrypt
 import mysql.connector as mariadb
 from dotenv import load_dotenv
+import sys, time
 import os
 
 # Set the local environment based on a `backend/.env` file
 load_dotenv()
 
 # Create instance of Flask application
-app = Flask(__name__, template_folder=os.path.abspath('../frontend'))
+app = Flask(__name__)
+
 # Apparently setting `SECRET_KEY` helps against XSS
-app.config['SECRET_KEY'] = os.getenv('Flask_SECRET_KEY')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 
 # Create usable instance of encryptor
 bcrypt = Bcrypt(app)
 
 # Establish database connection
-dbconnection = mariadb.connect(user=os.getenv('db_user'), password=os.getenv('db_pass'), database='team_pass', host='98.218.4.51')
+dbconnection = mariadb.connect(
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD'),
+    database=os.getenv('DB_NAME'),
+    host=os.getenv('DB_HOST'),
+)
 dbcursor = dbconnection.cursor()
 
-
-from project import routes
-
+# import declared routes
+from . import routes
 
 #### DEBUGGING ####
-
-
-import sys, time
-
 
 # Print message with timestamp to file (stderr by default)
 def log(msg, sep='#', file_out=sys.stderr):
