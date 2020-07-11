@@ -22,10 +22,24 @@ dbconnection = mariadb.connect(user=os.getenv('db_user'), password=os.getenv('db
 dbcursor = dbconnection.cursor()
 
 
-from project import routes
+#from project import routes
 
 
-#### DEBUGGING ####
+''' UTILITY  '''
+
+
+import re
+
+
+def validate_email(email):
+    return isinstance(email, str) and re.search('^([a-z0-9]+[\._]?)*[a-z0-9]+@\w+\.\w+$', email) is not None
+
+
+def validate_display_name(name):
+    return isinstance(name, str) and re.search('\w') is not None
+
+
+''' DEBUGGING '''
 
 
 import sys, time
