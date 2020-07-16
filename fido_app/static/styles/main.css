@@ -19,3 +19,9 @@ main {
   margin: 0 auto;
   width: 100%;
 }
+
+/* Profile CSS */
+.logout {
+  margin-top: var(--spacing);
+  align-self: flex-end;
+}

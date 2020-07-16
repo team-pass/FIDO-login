@@ -35,6 +35,4 @@ def get_first_result(dbcursor):
 
     first_result = results[0].fetchone()
 
-    print("first", first_result)
-
     return first_result

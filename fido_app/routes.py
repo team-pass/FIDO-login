@@ -32,6 +32,7 @@ def login():
     stored_email, stored_password = get_first_result(dbcursor) or (None, None)
 
     # If the user's password is incorrect, let them know
+    print(bcrypt.check_password_hash(stored_password, password))
     if not bcrypt.check_password_hash(stored_password, password):
         flash('Username or passsword is incorrect', 'error')
         return redirect(url_for('login'))
