@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block pageDescription %}
-"This is a registration page created by Team PASS: an undergraduate Gemstone research team from UMD studying cybersecurity."
+This is a registration page created by Team PASS: an undergraduate Gemstone research team from UMD studying
+cybersecurity.
 {% endblock %}
 {% block title %}Registration{% endblock %}
 {% block cardTitle %}Registration{% endblock %}
@@ -18,19 +19,14 @@
   </div>
   <div class="form-group">
     <label for="password">Confirm Password</label>
-    <input
-      type="password"
-      class="form-control"
-      id="confirm_password"
-      />
+    <input type="password" class="form-control" id="confirm_password" />
   </div>
   <button type="submit" class="btn btn-primary" value="Submit">
     Submit
   </button>
-  <small class="form-text text-muted"
-	 >Already have an account? Login
-    <a href="{{ url_for('login') }}">here</a></small
-					       >
+  <small class="form-text text-muted">Already have an account? Login
+    <a href="{{ url_for('login') }}">here</a>
+  </small>
 </form>
 
 {% endblock %}

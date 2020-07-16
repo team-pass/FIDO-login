@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block pageDescription %}
-"This is a user account page created by Team PASS: an undergraduate Gemstone research team from UMD studying cybersecurity."
+This is a user account page created by Team PASS: an undergraduate Gemstone research team from UMD studying
+cybersecurity.
 {% endblock %}
 {% block title %}User Account{% endblock %}
 {% block cardTitle %}{{session.username}}'s Account{% endblock %}
@@ -10,14 +11,8 @@
   <strong>Favorite number:</strong>
   <span id="fav-num">{{favorite_number}}</span>
 </p>
-<canvas
-  width="400"
-  height="400"
-  id="snake-game"
-  class="card"
-  ></canvas>
-<small class="form-text text-muted"
-       >Go back to
+<canvas width="400" height="400" id="snake-game" class="card"></canvas>
+<small class="form-text text-muted">Go back to
   <a href="{{ url_for('register') }}">registration</a>
 </small>
 
