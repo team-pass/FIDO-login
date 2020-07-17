@@ -12,7 +12,9 @@ cybersecurity.
   <span id="fav-num">{{favorite_number}}</span>
 </p>
 <canvas width="400" height="400" id="snake-game" class="card"></canvas>
-<a class="btn btn-primary logout" role="button" href="{{ url_for('logout') }}">Log Out</a>
+<form action="{{ url_for('logout') }}" method="POST">
+  <button type="submit" class="btn btn-primary logout">Log Out</button>
+</form>
 {% endblock %}
 
 {% block customJS %}

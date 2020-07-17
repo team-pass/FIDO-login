@@ -41,7 +41,7 @@ def login():
     return redirect(url_for('profile'))
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
     # Remove record of email in session cookie before redirection
     session.pop('email', None)
