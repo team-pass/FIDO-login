@@ -5,7 +5,7 @@ import sys
 
 from flask import request, session, render_template, url_for, redirect, jsonify, make_response
 import webauthn, secrets
-from project import app, bcrypt, dbconnection, dbcursor
+from project import app, bcrypt, dbconnection, dbcursor, login_manager
 import project
 
 
@@ -19,6 +19,14 @@ ORIGIN = 'https://localhost:5000'
 def index():
     return render_template('index.html')
 
+
+@login_manager.user_loader
+def load_user(user_id)
+    try:
+        int(user_id)
+    except ValueError:
+        return None
+    return User.query.get(int(user_id))
 
 @app.route('/webauthn_begin_activate', methods=['POST'])
 def webauthn_begin_activate():
@@ -233,11 +241,42 @@ def verify_assertion():
         'Successfully authenticated as {}'.format(user[0])
     })
 
+@app.rout('/login', methods=['GET', 'POST'])
+def login():
+     # If user enters form data and session cookie has no record of username:
+    if request.method == 'POST' and User[1] not in session:
+        # Query database for provided username
+        dbcursor.execute('SELECT email, pass FROM test WHERE email = %s', (request.form['email'],))
+        # Save query result (tuple if found, `None` otherwise)
+        result = dbcursor.fetchone()
+        # Verify provided password
+        pw_hash = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+        if result and bcrypt.check_password_hash(pw_hash, result[1]):
+            #For making this easier to check, ## will signify what is in routes.py
+            ## Save username as validation of login
+            ##session['username'] = result[0]
 
-'''
+            login_user(user) #logs in the user and automatically stores user's ID in session
+
+            flask.flash('Logged in Successfully')
+
+            # I don't know if we will need to check if the url is safe for redirects, here is the code
+            #next = flask.request.args.get('next')
+
+            #if not is_safe_url(next):
+                #return flask.abort(400)
+
+
+            # Redirect user to profile page (back to login page for now)
+            return redirect(url_for('login'))
+    # Display home page
+    return render_template('index.html')
+
+
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
-'''
+
