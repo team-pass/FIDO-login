@@ -244,7 +244,7 @@ def verify_assertion():
 @app.rout('/login', methods=['GET', 'POST'])
 def login():
      # If user enters form data and session cookie has no record of username:
-    if request.method == 'POST' and User[0] not in session:
+    if request.method == 'POST':
         # Query database for provided username
         dbcursor.execute('SELECT email, pass FROM test WHERE email = %s', (request.form['email'],))
         # Save query result (tuple if found, `None` otherwise)
