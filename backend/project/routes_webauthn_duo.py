@@ -185,7 +185,7 @@ def verify_credential_info():
         db.session.commit()
         '''
         # Add new user entry to database table
-        dbcursor.execute('INSERT INTO users (email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id) VALUES (%s, %s)', (email, display_name, ukey, 'https://example.com', webauthn_credential.credential_id, webauthn_credential.public_key, webauthn_credential.sign_count, RP_ID))
+        dbcursor.execute('INSERT INTO users (email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id) VALUES (%s, %s, %s, %s, %s, %s, %d, %s)', (email, display_name, ukey, 'https://example.com', webauthn_credential.credential_id, webauthn_credential.public_key, webauthn_credential.sign_count, RP_ID))
         dbconnection.commit()
     else:
         return make_response(jsonify({'fail': 'User already exists.'}), 401)
@@ -230,7 +230,7 @@ def verify_assertion():
 
     # Update counter.
     user.sign_count = sign_count
-    dbcursor.execute('INSERT INTO users (email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id) VALUES (%s, %s)', (user[0], user[1], user[2], user[3], user[4], user[5], user[6], user[7]))
+    dbcursor.execute('INSERT INTO users (email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id) VALUES (%s, %s, %s, %s, %s, %s, %d, %s)', (user[0], user[1], user[2], user[3], user[4], user[5], user[6], user[7]))
     dbconnection.commit()
 
     # TODO: find an equivalent for login_manager
