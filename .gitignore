@@ -1,0 +1,11 @@
+# Environment variable files
+**/.env
+
+# Pycache
+**/__pycache__
+
+# Virtual environment exclusions
+**/venv
+
+# Vscode settings
+**/.vscode

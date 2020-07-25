@@ -1,8 +1,8 @@
 // Select all necessary DOM elements
 const authForm = document.getElementById("auth-form");
 const mainInputsContainer = document.getElementById("main-inputs-container");
-const authMethodToggler = document.getElementById("auth-method-toggler");
 const passwordInputs = document.getElementById("password-inputs");
+const authMethodToggler = document.getElementById("auth-method-toggler");
 const biometricInputs = document.getElementById("biometric-inputs");
 
 // On page load, set the height of the auth form
