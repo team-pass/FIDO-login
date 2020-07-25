@@ -8,7 +8,9 @@
  */
 
 // Set up the web authentication library with information about our app
-const { WebAuthnApp } = WebAuthnSimpleApp;
+const {
+  WebAuthnApp
+} = WebAuthnSimpleApp;
 const webAuthnConfig = {
   registerChallengeEndpoint: "/register/challenge/",
   registerResponseEndpoint: "/register/response/",
@@ -20,7 +22,6 @@ const email = document.getElementById("email");
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirm-password");
 const registrationForm = document.getElementById("registration-form");
-// const passwordTab = document.getElementById("password-tab");
 
 /**
  * Ensures that the password and confirm password inputs have matching values
@@ -48,43 +49,23 @@ confirmPassword.addEventListener("blur", checkPasswordValidity);
 
 // When the user submits the registration form, start the registration process
 registrationForm.addEventListener("submit", (event) => {
-  event.preventDefault();
 
-  // This call is needed in case the confirm password field is left blank and never
-  // entered (so a blur event will never fire)
   if (!checkPasswordValidity()) {
+    event.preventDefault();
     return;
   }
 
-  // TODO: comment this out once the biometric toggler request is merged
-  //   if (passwordTab.classList.contains("active")) {
-
-  // If the user is using password auth, send the form data with fetch
-  fetch("/registration/password", {
-    method: "POST",
-    body: new FormData(registrationForm),
-  })
-    .then((response) => {
-      // Ensure the response comes back ok
-      if (!response.ok) {
-        throw new Error(
-          `Error with the network request (HTTP ${response.status})`
-        );
-      }
-    })
-    .catch((error) => {
-      alert(`Registration error: ${error.message}`);
-    });
 
   // TODO: comment this out once the biometric toggler request is merged
-  //   } else {
-  //     // If the user is using biometrics, use the WebAuthnApp to handle registration for us :)
-  //     webAuthnConfig.username = email.value;
-  //     new WebAuthnApp(webAuthnConfig).register();
-  //   }
+  // if (biometrics are active) {
+  //   // If the user is using biometrics, use the WebAuthnApp to handle registration for us :)
+  //   event.preventDefault();
+  //   webAuthnConfig.username = email.value;
+  //   new WebAuthnApp(webAuthnConfig).register();
+  // }
 });
 
 // Handle biometric registration errors
 document.addEventListener("webauthn-register-error", (err) => {
-  alert("Registration error: " + err.message); // TODO: Improve visuals
+  alert("Registration error: " + err.detail.message); // TODO: Improve visuals
 });

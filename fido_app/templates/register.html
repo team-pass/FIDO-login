@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block pageDescription %}
+This is a registration page created by Team PASS: an undergraduate Gemstone research team from UMD studying
+cybersecurity.
+{% endblock %}
+{% block title %}Registration{% endblock %}
+{% block cardTitle %}Registration{% endblock %}
+
+{% block cardBody %}
+<!--Registration Form-->
+<form id="registration-form" method="POST">
+  <div class="form-group">
+    <label for="email">Email address</label>
+    <input type="email" class="form-control" name="email" required />
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input id="password" type="password" class="form-control" name="password" required />
+  </div>
+  <div class="form-group">
+    <label for="confirm-password">Confirm Password</label>
+    <input name="confirm-password" type="password" class="form-control" id="confirm-password" required />
+  </div>
+  <button type="submit" class="btn btn-primary" value="Submit">
+    Submit
+  </button>
+  <small class="form-text text-muted">Already have an account? Login
+    <a href="{{ url_for('login') }}">here</a>
+  </small>
+</form>
+{% endblock %}
+
+{% block customJS %}
+<script src="https://cdn.jsdelivr.net/npm/webauthn-simple-app/dist/webauthn-simple-app.umd.js"></script>
+<script src="{{ url_for('static', filename='scripts/register.js') }}"></script>
+{% endblock %}
