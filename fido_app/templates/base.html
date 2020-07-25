@@ -27,6 +27,9 @@
           <div class="card-body">
             <h3 class="card-title">{% block cardTitle %}{% endblock %}</h3>
 
+            {% import 'messages.html' as messages %}
+            {{ messages.flasher() }}
+
             {% block cardBody %}{% endblock %}
 
           </div>

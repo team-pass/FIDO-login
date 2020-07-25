@@ -3,12 +3,18 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
 import mysql.connector as mariadb
+from .utils import ensure_environ_vars
 from dotenv import load_dotenv
 import sys, time
 import os
 
 # Set the local environment based on a `backend/.env` file
 load_dotenv()
+
+# Throw a descriptive error if the user's environment variables are missing
+ensure_environ_vars(
+    ['FLASK_SECRET_KEY', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_HOST',]
+)
 
 # Create instance of Flask application
 app = Flask(__name__)

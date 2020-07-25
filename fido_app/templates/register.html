@@ -5,8 +5,8 @@ cybersecurity.
 {% endblock %}
 {% block title %}Registration{% endblock %}
 {% block cardTitle %}Registration{% endblock %}
-{% block cardBody %}
 
+{% block cardBody %}
 <!--Registration Form-->
 <form method="POST">
   <div class="form-group">
@@ -18,8 +18,8 @@ cybersecurity.
     <input type="password" class="form-control" name="password" />
   </div>
   <div class="form-group">
-    <label for="password">Confirm Password</label>
-    <input type="password" class="form-control" id="confirm_password" />
+    <label for="confirm_password">Confirm Password</label>
+    <input name="confirm_password" type="password" class="form-control" id="confirm_password" />
   </div>
   <button type="submit" class="btn btn-primary" value="Submit">
     Submit
@@ -28,6 +28,6 @@ cybersecurity.
     <a href="{{ url_for('login') }}">here</a>
   </small>
 </form>
-
 {% endblock %}
+
 {% block customJS %}{% endblock %}
