@@ -1,0 +1,45 @@
+<!--Contains any common HTML components used on multiple pages-->
+
+<!-- Form components -->
+{% macro auth_toggler() -%}
+    <div id="auth-method-toggler" class="switch-track">
+      <div class="roller">
+        <img class="icon password" src="{{url_for('static', filename='images/password.svg')}}" />
+        <img class="icon biometric" src="{{url_for('static', filename='images/fingerprint.svg')}}" />
+      </div>
+    </div>
+{%- endmacro %}
+
+{% macro form_footer(action_description, action_location) -%}
+    <section class="d-flex justify-content-between align-items-center">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        {{ auth_toggler() }}
+    </section>
+    <small class="form-text text-muted">{{ action_description}}
+        <a href="{{ action_location }}">here</a>
+    </small>
+{%- endmacro %}
+
+<!--
+    Displays any errors or messages flashed by Flask (see 
+    https://flask.palletsprojects.com/en/1.1.x/patterns/flashing/?highlight=flashing)
+-->
+{% macro alert_list(filter, alert_class) -%}
+    {% with messages = get_flashed_messages(category_filter=[filter]) %}
+        {% if messages %} 
+            {%- for msg in messages %}
+                <div class="alert {{ alert_class }}" role="alert">
+                    {{ msg }}
+                </div>
+            {% endfor -%} 
+        {% endif %} 
+    {% endwith %}
+{%- endmacro %}
+
+{% macro message_flasher() -%}
+    <div class="message-flasher">
+        <!--Will be populated with any flashed messages from Flask-->
+        {{ alert_list('error', 'alert-danger')}}
+        {{ alert_list('message', 'alert-success')}}
+    </div>
+{%- endmacro %}

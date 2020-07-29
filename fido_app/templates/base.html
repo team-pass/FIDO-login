@@ -27,8 +27,8 @@
           <div class="card-body">
             <h3 class="card-title">{% block cardTitle %}{% endblock %}</h3>
 
-            {% import 'messages.html' as messages %}
-            {{ messages.flasher() }}
+            {% import 'components.html' as components %}
+            {{ components.message_flasher() }}
 
             {% block cardBody %}{% endblock %}
 
@@ -36,8 +36,6 @@
         </div>
       </section>
     </main>
-
-    {% block customJS %}{% endblock %}
 
     <!-- Bootstrap JS Libraries (jQuery, Popper, and Bootstrap) -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
@@ -49,6 +47,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
       integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
     </script>
+
+    {% block customJS %}{% endblock %}
   </body>
 
 </html>

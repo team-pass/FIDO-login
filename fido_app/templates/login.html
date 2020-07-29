@@ -7,18 +7,12 @@ cybersecurity.
 {% block cardTitle %}FIDO Login{% endblock %}
 {% block cardBody %}
 
-<ul class="nav nav-tabs justify-content-center mb-3" role="tablist">
-  <li class="active nav-item">
-    <a class="nav-link active" data-toggle="tab" href="#password-login-menu">Use a Password</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="tab" href="#biometric-login-menu">Use your Biometrics</a>
-  </li>
-</ul>
-<div class="tab-content">
-  <div id="password-login-menu" class="tab-pane active">
-    <!--Login Form using password-->
-    <form method="POST">
+<!-- Login Form -->
+<form id="auth-form" method="POST">
+  <div id="main-inputs-container">
+
+    <!-- Password login form -->
+    <section id="password-inputs">
       <div class="form-group">
         <label for="email">Email address</label>
         <input name="email" type="email" class="form-control" id="email" />
@@ -27,26 +21,23 @@ cybersecurity.
         <label for="password">Password</label>
         <input name="password" type="password" class="form-control" id="password" />
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-      <small class="form-text text-muted">Don't have an account? Register
-        <a href="{{ url_for('register') }}">here</a>
-      </small>
-    </form>
-  </div>
-  <div id="biometric-login-menu" class="tab-pane fade">
-    <!--Login Form using password-->
-    <form method="POST">
+    </section>
+
+    <!-- Biometric login form -->
+    <section id="biometric-inputs">
       <div class="form-group">
         <label for="biometric">Biometric</label>
-        <input name="biometric" type="text" class="form-control" id="biometric" />
+        <input class="form-control" id="biometric" />
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-      <small class="form-text text-muted">Don't have an account? Register
-        <a href="{{ url_for('register') }}">here</a>
-      </small>
-    </form>
+    </section>
   </div>
-</div>
+
+  {% import 'components.html' as components %}
+  {{ components.form_footer("Don't have an account? Register", url_for('register')) }}
+</form>
 
 {% endblock %}
-{% block customJS %}{% endblock %}
+
+{% block customJS %}
+<script src="{{ url_for('static', filename='scripts/auth-method-toggler.js') }}"></script>
+{% endblock %}
