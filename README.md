@@ -7,6 +7,7 @@
 
 # 🔐 FIDO-Login
 
+![Build](https://github.com/team-pass/FIDO-login/workflows/Build/badge.svg)
 A FIDO-compliant web app that has biometric authentication capabilities. Built using [Flask](https://flask.palletsprojects.com/en/1.1.x/), [Bootstrap](https://getbootstrap.com/), and the [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API).
 
 ## 🗺 Project Layout
