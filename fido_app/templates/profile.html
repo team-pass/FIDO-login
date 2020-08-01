@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block pageDescription %}
+This is a user account page created by Team PASS: an undergraduate Gemstone research team from UMD studying
+cybersecurity.
+{% endblock %}
+{% block title %}User Account{% endblock %}
+{% block cardTitle %}{{session.email}}'s Account{% endblock %}
+
+{% block cardBody %}
+<p>
+  <strong>Favorite number:</strong>
+  <span id="fav-num">{{favorite_number}}</span>
+</p>
+<canvas width="400" height="400" id="snake-game" class="card"></canvas>
+<form action="{{ url_for('logout') }}" method="POST">
+  <button type="submit" class="btn btn-primary logout">Log Out</button>
+</form>
+{% endblock %}
+
+{% block customJS %}
+<script src="{{ url_for('static', filename='scripts/snake-game.js') }}"></script>
+{% endblock %}

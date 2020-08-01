@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block pageDescription %}
+This is a registration page created by Team PASS: an undergraduate Gemstone research team from UMD studying
+cybersecurity.
+{% endblock %}
+{% block title %}Registration{% endblock %}
+{% block cardTitle %}Registration{% endblock %}
+
+{% block cardBody %}
+<!--Registration Form-->
+<form id="auth-form" method="POST">
+  <div id="main-inputs-container">
+
+    <!-- Password registration form -->
+    <section id="password-inputs">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input name="email" type="email" class="form-control" id="email" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input name="password" type="password" class="form-control" id="password" />
+      </div>
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input name="confirm_password" type="password" class="form-control" id="confirm_password" />
+      </div>
+    </section>
+
+    <!-- Biometric registration form -->
+    <section id="biometric-inputs">
+      <div class="form-group">
+        <label for="biometric">Biometric</label>
+        <input class="form-control" id="biometric" />
+      </div>
+    </section>
+  </div>
+
+  {% import 'components.html' as components %}
+  {{ components.form_footer('Already have an account? Log in', url_for('login')) }}
+</form>
+{% endblock %}
+
+{% block customJS %}
+<script src="{{ url_for('static', filename='scripts/auth-method-toggler.js') }}"></script>
+{% endblock %}

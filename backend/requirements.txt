@@ -1,8 +1,0 @@
-cbor2==5.1.0
-Flask==1.0.2
-Flask_Bcrypt==0.7.1
-Flask_Login==0.5.0
-mysql_connector_repackaged==0.3.1
-mysql_connector_python==8.0.19
-python-dotenv==0.13.0
-webauthn==0.4.7
