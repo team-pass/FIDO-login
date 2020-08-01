@@ -34,11 +34,14 @@ dbconnection = mariadb.connect(
 )
 dbcursor = dbconnection.cursor()
 
-# import declared routes
-from . import routes
 
 #### DEBUGGING ####
 
 # Print message with timestamp to file (stderr by default)
 def log(msg, sep='#', file_out=sys.stderr):
     print('%s\n(%s) %s\n%s' % (sep * 64, time.ctime(), msg, sep * 64), file=file_out)
+
+
+# import declared routes
+from . import routes
+

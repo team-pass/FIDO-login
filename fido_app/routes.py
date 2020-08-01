@@ -1,6 +1,6 @@
 ''' API ROUTE IMPLEMENTATION '''
 from flask import request, session, render_template, url_for, redirect, flash
-from . import app, bcrypt, dbconnection, dbcursor
+from . import app, bcrypt, dbconnection, dbcursor, log
 import mysql
 from .utils import get_first_result
 from random import randint
@@ -32,6 +32,8 @@ def login():
     stored_email, stored_password = get_first_result(dbcursor) or (None, None)
 
     # If the user's password is incorrect, let them know
+    log('stored_password type: ' + str(type(stored_password)))
+    log('password type: ' + str(type(password)))
     if not bcrypt.check_password_hash(stored_password, password):
         flash('Username or passsword is incorrect', 'error')
         return redirect(url_for('login'))
