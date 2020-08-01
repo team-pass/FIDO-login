@@ -5,11 +5,11 @@
 # 🔐 FIDO-Login
 
 <p align="center">
-    <a href="/LICENSE" aria-label="License" target="_blank">
+    <a aria-label="License" href="/LICENSE">
         <img alt="License" src="https://img.shields.io/github/license/team-pass/FIDO-LOGIN"></a>
-    <a aria-label="Build Status" href="https://github.com/team-pass/FIDO-login/actions?query=workflow%3ABuild" target="_blank">
+    <a aria-label="Build Status" href="https://github.com/team-pass/FIDO-login/actions?query=workflow%3ABuild">
         <img alt="Build Status" src="https://github.com/team-pass/FIDO-login/workflows/Build/badge.svg"></a>
-    <a aria-label="Github contributors" href="https://github.com/team-pass/FIDO-login/graphs/contributors" target="_blank">
+    <a aria-label="Github contributors" href="https://github.com/team-pass/FIDO-login/graphs/contributors">
         <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/team-pass/FIDO-login"></a>
 </p>
 
