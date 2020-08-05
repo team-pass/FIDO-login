@@ -3,6 +3,7 @@ cffi==1.14.0
 click==7.1.2
 Flask==1.0.2
 Flask-Bcrypt==0.7.1
+Flask-Login==0.5.0
 itsdangerous==1.1.0
 Jinja2==2.11.2
 MarkupSafe==1.1.1
@@ -12,3 +13,5 @@ pycparser==2.20
 python-dotenv==0.13.0
 six==1.15.0
 Werkzeug==1.0.1
+cbor2==5.1.0
+webauthn==0.4.7
