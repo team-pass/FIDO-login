@@ -2,6 +2,7 @@
 
 from flask import Flask
 from flask_bcrypt import Bcrypt
+from flask_wtf.csrf import CSRFProtect
 import mysql.connector as mariadb
 from .utils import ensure_environ_vars
 from dotenv import load_dotenv
@@ -18,6 +19,9 @@ ensure_environ_vars(
 
 # Create instance of Flask application
 app = Flask(__name__)
+
+# Adding csrf protection
+csrf = CSRFProtect(app)
 
 # Apparently setting `SECRET_KEY` helps against XSS
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
