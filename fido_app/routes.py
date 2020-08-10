@@ -61,7 +61,7 @@ def register():
     # Otherwise, handle the POST request to register a new user account
     email = request.form.get('email')
     password = request.form.get('password')
-    confirm_password = request.form.get('confirm_password')
+    confirm_password = request.form.get('confirm-password')
 
     # Ensure the user entered all correct information
     if not (email and password and confirm_password):

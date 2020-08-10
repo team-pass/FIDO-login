@@ -8,33 +8,24 @@ cybersecurity.
 
 {% block cardBody %}
 <!--Registration Form-->
-<form id="auth-form" method="POST">
-  <div id="main-inputs-container">
+<form id="registration-form" method="POST">
 
-    <!-- Password registration form -->
-    <section id="password-inputs">
-      <div class="form-group">
-        <label for="email">Email address</label>
-        <input name="email" type="email" class="form-control" id="email" />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input name="password" type="password" class="form-control" id="password" />
-      </div>
-      <div class="form-group">
-        <label for="confirm_password">Confirm Password</label>
-        <input name="confirm_password" type="password" class="form-control" id="confirm_password" />
-      </div>
-    </section>
-
-    <!-- Biometric registration form -->
-    <section id="biometric-inputs">
-      <div class="form-group">
-        <label for="biometric">Biometric</label>
-        <input class="form-control" id="biometric" />
-      </div>
-    </section>
+  <div class="form-group">
+    <label for="email">Email address</label>
+    <input name="email" type="email" class="form-control" id="email" required />
   </div>
+
+  <!-- Password inputs for registration -->
+  <section id="password-inputs" class="collapse show">
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input name="password" type="password" class="form-control" id="password" required />
+    </div>
+    <div class="form-group">
+      <label for="confirm-password">Confirm Password</label>
+      <input name="confirm-password" type="password" class="form-control" id="confirm-password" required />
+    </div>
+  </section>
 
   {% import 'components.html' as components %}
   {{ components.form_footer('Already have an account? Log in', url_for('login')) }}
@@ -42,5 +33,7 @@ cybersecurity.
 {% endblock %}
 
 {% block customJS %}
+<script src="https://cdn.jsdelivr.net/npm/webauthn-simple-app/dist/webauthn-simple-app.umd.js"></script>
 <script src="{{ url_for('static', filename='scripts/auth-method-toggler.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/register.js') }}"></script>
 {% endblock %}
