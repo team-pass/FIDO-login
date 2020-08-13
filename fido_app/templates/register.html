@@ -9,6 +9,10 @@ cybersecurity.
 {% block cardBody %}
 <!--Registration Form-->
 <form id="auth-form" method="POST">
+  
+  <!-- CSRF Protection -->
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
   <div id="main-inputs-container">
 
     <!-- Password registration form -->
