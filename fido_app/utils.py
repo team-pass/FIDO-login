@@ -42,7 +42,7 @@ def validate_email(email):
     Returns True if email is a properly formatted email address;
     returns False otherwise.
     '''    
-    return isinstance(email, str) and re.search('^([a-z0-9]+[\._]?)*[a-z0-9]+@\w+\.\w+$', email) is not None
+    return isinstance(email, str) and re.search(r'^([a-z0-9]+[\._]?)*[a-z0-9]+@\w+\.\w+$', email) is not None
 
 
 def validate_display_name(name):
@@ -51,7 +51,7 @@ def validate_display_name(name):
     which at the moment means name contains at least one word character;
     returns False otherwise.
     '''
-    return isinstance(name, str) and re.search('\w') is not None
+    return isinstance(name, str) and re.search(r'\w', name) is not None
 
 
 def log(msg, sep='#', file_out=sys.stderr):

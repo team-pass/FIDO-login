@@ -10,10 +10,10 @@ from .utils import validate_email, validate_display_name, log
 @login_manager.user_loader
 def load_user(user_id):
     try:
-        int(user_id)
+        id = int(user_id)
     except ValueError:
         return None
-    return User.query.get(int(user_id))
+    return User.query.get(id)
 
 
 @app.route('/webauthn_begin_activate', methods=['POST'])
