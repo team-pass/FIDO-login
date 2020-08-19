@@ -1,8 +1,9 @@
 ''' API ROUTE IMPLEMENTATION '''
+
 from flask import request, session, render_template, url_for, redirect, flash
-from . import app, bcrypt, dbconnection, dbcursor, log
+from . import app, bcrypt, dbconnection, dbcursor
 import mysql
-from .utils import get_first_result
+from .utils import get_first_result, log
 from random import randint
 
 

@@ -14,7 +14,7 @@ load_dotenv()
 
 # Throw a descriptive error if the user's environment variables are missing
 ensure_environ_vars(
-    ['FLASK_SECRET_KEY', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_HOST',]
+    ['FLASK_SECRET_KEY', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_HOST', 'RP_ID', 'RP_NAME', 'ORIGIN']
 )
 
 # Create instance of Flask application
@@ -40,52 +40,6 @@ dbconnection = mariadb.connect(
 dbcursor = dbconnection.cursor()
 
 
-#from project import routes
-
-
-''' USER CLASS (for use with Flask-Login) '''
-
-
-from flask_login import UserMixin
-
-
-class User(UserMixin):
-    def __init__(self, email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id):
-        self.email = email                  # str
-        self.display_name = display_name    # str
-        self.ukey = ukey                    # str
-        self.icon_url = icon_url            # str
-        self.credential_id = credential_id  # str
-        self.pub_key = pub_key              # str
-        self.sign_count = sign_count        # int
-        self.rp_id = rp_id                  # str
-
-    def __repr__(self):
-        return 'User %s (Email: %s)' % (self.display_name, self.email)
-
-
-''' UTILITY  '''
-
-
-import re
-
-
-def validate_email(email):
-    return isinstance(email, str) and re.search('^([a-z0-9]+[\._]?)*[a-z0-9]+@\w+\.\w+$', email) is not None
-
-
-def validate_display_name(name):
-    return isinstance(name, str) and re.search('\w') is not None
-
-
-''' DEBUGGING '''
-
-
-# Print message with timestamp to file (stderr by default)
-def log(msg, sep='#', file_out=sys.stderr):
-    print('%s\n(%s) %s\n%s' % (sep * 64, time.ctime(), msg, sep * 64), file=file_out)
-
-
 # import declared routes
-from . import routes
+from . import routes, webauthn_routes
 

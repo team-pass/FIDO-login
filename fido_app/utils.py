@@ -1,4 +1,4 @@
-import os
+import os, sys, re
 
 ''' Contains useful utility functions for our Flask app '''
 
@@ -35,3 +35,28 @@ def get_first_result(dbcursor):
     first_result = results[0].fetchone()
 
     return first_result
+
+
+def validate_email(email):
+    '''
+    Returns True if email is a properly formatted email address;
+    returns False otherwise.
+    '''    
+    return isinstance(email, str) and re.search('^([a-z0-9]+[\._]?)*[a-z0-9]+@\w+\.\w+$', email) is not None
+
+
+def validate_display_name(name):
+    '''
+    Returns True if name is a properly formatted display name,
+    which at the moment means name contains at least one word character;
+    returns False otherwise.
+    '''
+    return isinstance(name, str) and re.search('\w') is not None
+
+
+def log(msg, sep='#', file_out=sys.stderr):
+    '''
+    Print message with timestamp to file (stderr by default);
+    includes a sep argument to help distinguish log messages in the console.
+    '''
+    print('%s\n(%s) %s\n%s' % (sep * 64, time.ctime(), msg, sep * 64), file=file_out)

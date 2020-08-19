@@ -1,32 +1,20 @@
 ''' ROUTING IMPLEMENTATION BASED ON DUO LABS'S '''
 
-import os
-import sys
-
+import os, sys, webauthn, secrets
 from flask import request, session, render_template, url_for, redirect, jsonify, make_response
-import webauthn, secrets
-from project import app, bcrypt, dbconnection, dbcursor, login_manager
-import project
-
-
-RP_ID = 'localhost'
-RP_NAME = 'webauthn demo localhost'
-ORIGIN = 'https://localhost:5000'
-
-
-@app.route('/')
-@app.route('/index')
-def index():
-    return render_template('index.html')
+from flask_login import login_required
+from . import app, bcrypt, dbconnection, dbcursor, login_manager
+from .utils import validate_email, validate_display_name, log
 
 
 @login_manager.user_loader
-def load_user(user_id)
+def load_user(user_id):
     try:
         int(user_id)
     except ValueError:
         return None
     return User.query.get(int(user_id))
+
 
 @app.route('/webauthn_begin_activate', methods=['POST'])
 def webauthn_begin_activate():
@@ -35,9 +23,9 @@ def webauthn_begin_activate():
     display_name = request.form['register_display_name']
 
     # Verify that email and display name are acceptable
-    if not project.validate_email(email):
+    if not validate_email(email):
         return make_response(jsonify({'fail': 'Invalid email.'}), 401)
-    if not project.validate_display_name(display_name):
+    if not validate_display_name(display_name):
         return make_response(jsonify({'fail': 'Invalid display name.'}), 401)
 
     # Check if email is already taken
@@ -81,7 +69,7 @@ def webauthn_begin_activate():
 def webauthn_begin_assertion():
     email = request.form['login_username']
 
-    if not project.validate_email(email):
+    if not validate_email(email):
         return make_response(jsonify({'fail': 'Invalid email.'}), 401)
 
     # Attempt to find user in database
@@ -241,8 +229,8 @@ def verify_assertion():
         'Successfully authenticated as {}'.format(user[0])
     })
 
-@app.rout('/login', methods=['GET', 'POST'])
-def login():
+@app.route('/webauthn_login', methods=['GET', 'POST'])
+def webauthn_login():
      # If user enters form data and session cookie has no record of username:
     if request.method == 'POST':
         # Query database for provided username
@@ -274,9 +262,9 @@ def login():
 
 
 
-@app.route('/logout')
+@app.route('/webauthn_logout')
 @login_required
-def logout():
+def webauthn_logout():
     logout_user()
     return redirect(url_for('index'))
 
