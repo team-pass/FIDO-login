@@ -8,33 +8,23 @@ cybersecurity.
 {% block cardBody %}
 
 <!-- Login Form -->
-<form id="auth-form" method="POST">
+<form id="login-form" method="POST">
 
   <!-- CSRF Protection -->
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-  <div id="main-inputs-container">
-
-    <!-- Password login form -->
-    <section id="password-inputs">
-      <div class="form-group">
-        <label for="email">Email address</label>
-        <input name="email" type="email" class="form-control" id="email" />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input name="password" type="password" class="form-control" id="password" />
-      </div>
-    </section>
-
-    <!-- Biometric login form -->
-    <section id="biometric-inputs">
-      <div class="form-group">
-        <label for="biometric">Biometric</label>
-        <input class="form-control" id="biometric" />
-      </div>
-    </section>
+  <div class="form-group">
+    <label for="email">Email address</label>
+    <input name="email" type="email" class="form-control" id="email" required />
   </div>
+
+  <!-- Password-related inputs -->
+  <section id="password-inputs" class="collapse show">
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input name="password" type="password" class="form-control" id="password" required />
+    </div>
+  </section>
 
   {% import 'components.html' as components %}
   {{ components.form_footer("Don't have an account? Register", url_for('register')) }}
@@ -43,5 +33,7 @@ cybersecurity.
 {% endblock %}
 
 {% block customJS %}
+<script src="https://cdn.jsdelivr.net/npm/webauthn-simple-app/dist/webauthn-simple-app.umd.js"></script>
 <script src="{{ url_for('static', filename='scripts/auth-method-toggler.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/login.js') }}"></script>
 {% endblock %}
