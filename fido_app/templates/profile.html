@@ -10,6 +10,7 @@ cybersecurity.
   <span>{{session.email}}'s Account</span>
 
   <form action="{{ url_for('logout') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <button type="submit" class="btn btn-primary btn-block">Log Out</button>
   </form>
 </div>
@@ -25,6 +26,7 @@ cybersecurity.
 <footer>
   <form action="{{ url_for('delete_account') }}" method="POST"
     onsubmit="return confirm('Do you really want to delete your account?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <button type="submit" class="btn btn-outline-danger btn-block profile-action">Delete Account</button>
   </form>
 </footer>

@@ -10,6 +10,9 @@ cybersecurity.
 <!-- Login Form -->
 <form id="login-form" method="POST">
 
+  <!-- CSRF Protection -->
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
   <div class="form-group">
     <label for="email">Email address</label>
     <input name="email" type="email" class="form-control" id="email" required />
