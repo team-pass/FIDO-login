@@ -64,7 +64,7 @@ def register():
     # Otherwise, handle the POST request to register a new user account
     email = request.form.get('email')
     password = request.form.get('password')
-    confirm_password = request.form.get('confirm_password')
+    confirm_password = request.form.get('confirm-password')
 
     # Ensure the user entered all correct information
     if not (email and password and confirm_password):
@@ -107,9 +107,23 @@ def profile():
     # If the user's favorite number isn't set, default to the string "??"
     # TODO: implement this call as a stored procedure
     # dbcursor.execute(
-    #     'SELECT favorite_number FROM test WHERE email = %s LIMIT 1', (session["email"],)
+    #     'SELECT favorite_number FROM users WHERE email = %s LIMIT 1', (session["email"],)
     # )
     favorite_number = dbcursor.fetchone() or "??"
 
     # Pass the favorite_number variable to the profile template
     return render_template('profile.html', favorite_number=favorite_number)
+
+
+@app.route('/delete-account', methods=['POST'])
+def delete_account():
+    if 'email' in session:
+        email = session['email']
+        dbcursor.callproc('delete_account_by_email', (email,))
+
+        flash(f'Successfully deleted account for {email}', 'message')
+    else:
+        flash('Must be logged in to delete your account', 'error')
+
+    session.pop('email', None)
+    return redirect(url_for('login'))

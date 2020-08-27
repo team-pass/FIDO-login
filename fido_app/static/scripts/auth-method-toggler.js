@@ -1,24 +1,34 @@
-// Select all necessary DOM elements
-const authForm = document.getElementById("auth-form");
-const mainInputsContainer = document.getElementById("main-inputs-container");
-const passwordInputs = document.getElementById("password-inputs");
-const authMethodToggler = document.getElementById("auth-method-toggler");
-const biometricInputs = document.getElementById("biometric-inputs");
+const methodToggler = document.getElementById("auth-method-toggler");
+const passwordInputs = document.querySelectorAll("#password-inputs input");
 
-// On page load, set the height of the auth form
-window.addEventListener("load", adjustAuthFormHeight);
+// Extract required password input fields into a map
+const requiredPasswordInputMap = new Map([...passwordInputs].map(
+    input => [input, input.getAttribute("required")]
+));
 
-// Swap between password and biometric authentication when the auth method switch is pressed
-authMethodToggler.addEventListener("click", () => {
-  authForm.classList.toggle("using-biometrics");
-  adjustAuthFormHeight();
-});
+/**
+ * Sets the required password fields based on whether the user chose biometric
+ * or password authentication
+ */
+function setRequiredFields() {
+    // Note that this handler fires BEFORE the `aria-expanded` attribute changes.
+    // That means that when the toggler WASN'T expanded, passwords WERE being used,
+    // and biometrics will be used after the click event finishes propogating
+    const willBeUsingBiometrics = methodToggler.getAttribute("aria-expanded") === "true";
 
-// Choose the auth form's height base on the presence of the using-biometrics class
-function adjustAuthFormHeight() {
-  mainInputsContainer.style.height = `${
-    authForm.classList.contains("using-biometrics")
-      ? biometricInputs.offsetHeight
-      : passwordInputs.offsetHeight
-  }px`;
+    if (willBeUsingBiometrics) {
+        // Turn off any required inputs
+        passwordInputs.forEach(input => {
+            input.removeAttribute("required")
+        })
+    } else {
+        // Turn on any required inputs that were previously required
+        passwordInputs.forEach(input => {
+            if (requiredPasswordInputMap[input] !== null) {
+                input.setAttribute("required", "true");
+            }
+        })
+    }
 }
+
+methodToggler.addEventListener("click", setRequiredFields);

@@ -22,9 +22,9 @@ DB_NAME="some database name"
 DB_HOST="some IP address"
 DB_USER="some username"
 DB_PASSWORD="some password"
-RP_ID = 'localhost'
-RP_NAME = 'webauthn demo localhost'
-ORIGIN = 'https://localhost:5000'
+RP_ID = "some relying party URL (e.g., localhost)"
+RP_NAME = "some relying party name"
+ORIGIN = "some URL"
 ```
 
 5. Setup and activate a Python virtual environment (see the [official Python docs on venv](https://docs.python.org/3/tutorial/venv.html)).
