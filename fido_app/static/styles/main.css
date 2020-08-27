@@ -2,7 +2,8 @@
 :root {
   --spacing: 2rem;
   --std-timing: 200ms ease-in-out;
-  --fully-rounded-br: 1000px; /* Arbitrarily large border radius value */
+  --fully-rounded-br: 1000px;
+  /* Arbitrarily large border radius value */
 }
 
 /* Grid */
@@ -16,31 +17,20 @@ main {
   margin: 0 auto var(--spacing);
 }
 
-#main-inputs-container {
-  position: relative;
-  transition: height var(--std-timing);
-}
-
-#biometric-inputs,
-#password-inputs {
-  transition: opacity var(--std-timing);
-  position: absolute;
-  width: 100%;
-}
-
-#auth-form #biometric-inputs,
-#auth-form.using-biometrics #password-inputs {
-  pointer-events: none;
-  opacity: 0;
-}
-
-#auth-form.using-biometrics #biometric-inputs,
-#auth-form #password-inputs {
-  pointer-events: all;
-  opacity: 1;
-}
-
 /* Auth Method Toggling */
+#auth-method-toggler {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+}
+
+#auth-method-toggler:focus .switch-track {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+}
+
 .switch-track,
 .roller,
 .icon {
@@ -59,7 +49,9 @@ main {
   background-color: var(--track-color);
   border-radius: var(--fully-rounded-br);
   padding: var(--track-padding);
-  position: relative; /* Needed to absolutely position the roller relative to the track */
+
+  /* Needed to absolutely position the roller relative to the track */
+  position: relative;
   transition: background-color var(--std-timing);
   cursor: pointer;
 }
@@ -70,38 +62,44 @@ main {
   left: var(--track-padding);
   height: var(--roller-height);
   width: var(--roller-height);
-  border-radius: 100%; /* Fully rounds the roller */
+
+  /* Fully rounds the roller */
+  border-radius: 100%;
   background-color: var(--roller-color);
   transition: left var(--std-timing);
-  display: flex; /* Position the image inside the roller in the center */
+
+  /* Position the image inside the roller in the center */
+  display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .icon {
   height: calc(var(--roller-height) * 0.8);
-  pointer-events: none; /* Don't allow the icon from being selected or receiving click events */
+
+  /* Don't allow the icon from being selected or receiving click events */
+  pointer-events: none;
   user-select: none;
 }
 
-#auth-form.using-biometrics .switch-track {
+#auth-method-toggler.collapsed .switch-track {
   /* Use the primary color when biometrics are active */
   background-color: var(--primary);
 }
 
-#auth-form.using-biometrics .roller {
+#auth-method-toggler.collapsed .roller {
   /* Move the roller to the other side of the switch track when it is clicked */
   left: calc(var(--track-width) - var(--roller-height) - var(--track-padding));
 }
 
-#auth-form img.biometric,
-#auth-form.using-biometrics img.password {
+#auth-method-toggler img.biometric,
+#auth-method-toggler.collapsed img.password {
   /* Display the password image when biometrics aren't being used */
   display: none;
 }
 
-#auth-form img.password,
-#auth-form.using-biometrics img.biometric {
+#auth-method-toggler img.password,
+#auth-method-toggler.collapsed img.biometric {
   /* Display the biometrics image when biometrics are being used */
   display: initial;
 }
@@ -113,7 +111,6 @@ main {
 }
 
 /* Profile CSS */
-.logout {
+.profile-action {
   margin-top: var(--spacing);
-  align-self: flex-end;
 }

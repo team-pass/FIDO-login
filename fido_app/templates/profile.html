@@ -4,7 +4,16 @@ This is a user account page created by Team PASS: an undergraduate Gemstone rese
 cybersecurity.
 {% endblock %}
 {% block title %}User Account{% endblock %}
-{% block cardTitle %}{{session.email}}'s Account{% endblock %}
+
+{% block cardTitle %}
+<div class="d-flex flex-row justify-content-between">
+  <span>{{session.email}}'s Account</span>
+
+  <form action="{{ url_for('logout') }}" method="POST">
+    <button type="submit" class="btn btn-primary btn-block">Log Out</button>
+  </form>
+</div>
+{% endblock %}
 
 {% block cardBody %}
 <p>
@@ -12,9 +21,14 @@ cybersecurity.
   <span id="fav-num">{{favorite_number}}</span>
 </p>
 <canvas width="400" height="400" id="snake-game" class="card"></canvas>
-<form action="{{ url_for('logout') }}" method="POST">
-  <button type="submit" class="btn btn-primary logout">Log Out</button>
-</form>
+
+<footer>
+  <form action="{{ url_for('delete_account') }}" method="POST"
+    onsubmit="return confirm('Do you really want to delete your account?');">
+    <button type="submit" class="btn btn-outline-danger btn-block profile-action">Delete Account</button>
+  </form>
+</footer>
+
 {% endblock %}
 
 {% block customJS %}
