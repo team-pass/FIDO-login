@@ -7,6 +7,11 @@ from . import app, bcrypt, dbconnection, dbcursor, login_manager
 from .utils import validate_email, validate_display_name, log
 
 
+RP_ID = os.getenv('RP_ID')
+RP_NAME = os.getenv('RP_NAME')
+RP_ORIGIN = os.getenv('ORIGIN')
+
+
 @login_manager.user_loader
 def load_user(user_id):
     try:
@@ -29,12 +34,14 @@ def webauthn_begin_activate():
         return make_response(jsonify({'fail': 'Invalid display name.'}), 401)
 
     # Check if email is already taken
-    dbcursor.execute('SELECT email FROM test WHERE email = %s', (email,))
-    user = dbcursor.fetchone()
-    if user:
+    #dbcursor.execute('SELECT email FROM test WHERE email = %s', (email,))
+    #user = dbcursor.fetchone()
+    #if user:
+    dbcursor.callproc('user_select_users', args=(email,))
+    if get_first_result(dbcursor):
         return make_response(jsonify({'fail': 'User already exists.'}), 401)
 
-    #clear session variables prior to starting a new registration
+    # Clear session variables prior to starting a new registration
     if 'register_ukey' in session:
         session.pop('register_ukey', None)
     if 'register_email' in session:
@@ -72,7 +79,7 @@ def webauthn_begin_assertion():
     if not validate_email(email):
         return make_response(jsonify({'fail': 'Invalid email.'}), 401)
 
-    # Attempt to find user in database
+    # Attempt to find user in database (TODO: replace with future stored proc)
     dbcursor.execute('SELECT email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id FROM test WHERE email = %s', (email,))
     user = dbcursor.fetchone()
 
@@ -142,6 +149,7 @@ def verify_credential_info():
     # to a different user, the Relying Party SHOULD fail this registration
     # ceremony, or it MAY decide to accept the registration, e.g. while deleting
     # the older registration.
+    # TODO: replace with future stored proc
     dbcursor.execute('SELECT credential_id FROM test WHERE credential_id = %s', (webauthn_credential.credential_id,))
     credential_id_exists = dbcursor.fetchone()
     
@@ -151,9 +159,11 @@ def verify_credential_info():
                 'fail': 'Credential ID already exists.'
             }), 401)
 
-    dbcursor.execute('SELECT email FROM test WHERE email = %s', (email,))
-    existing_user = dbcursor.fetchone()
-    if not existing_user:
+    #dbcursor.execute('SELECT email FROM test WHERE email = %s', (email,))
+    #existing_user = dbcursor.fetchone()
+    #if not existing_user:
+    dbcursor.callproc('user_select_users', args=(email,))
+    if not get_first_result(dbcursor):
         if sys.version_info >= (3, 0):
             webauthn_credential.credential_id = str(
                 webauthn_credential.credential_id, "utf-8")
@@ -172,7 +182,7 @@ def verify_credential_info():
         db.session.add(user)
         db.session.commit()
         '''
-        # Add new user entry to database table
+        # Add new user entry to database table (TODO: replace with future stored proc)
         dbcursor.execute('INSERT INTO users (email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id) VALUES (%s, %s, %s, %s, %s, %s, %d, %s)', (email, display_name, ukey, 'https://example.com', webauthn_credential.credential_id, webauthn_credential.public_key, webauthn_credential.sign_count, RP_ID))
         dbconnection.commit()
     else:
@@ -189,6 +199,7 @@ def verify_assertion():
     assertion_response = request.form
     credential_id = assertion_response.get('id')
 
+    # TODO: replace with future stored proc
     dbcursor.execute('SELECT email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id FROM test WHERE credential_id = %s', (credential_id,))
     user = dbcursor.fetchone()
     if not user:
@@ -218,6 +229,7 @@ def verify_assertion():
 
     # Update counter.
     user.sign_count = sign_count
+    # TODO: replace with future stored proc
     dbcursor.execute('INSERT INTO users (email, display_name, ukey, icon_url, credential_id, pub_key, sign_count, rp_id) VALUES (%s, %s, %s, %s, %s, %s, %d, %s)', (user[0], user[1], user[2], user[3], user[4], user[5], user[6], user[7]))
     dbconnection.commit()
 
@@ -234,12 +246,15 @@ def webauthn_login():
      # If user enters form data and session cookie has no record of username:
     if request.method == 'POST':
         # Query database for provided username
-        dbcursor.execute('SELECT email, pass FROM test WHERE email = %s', (request.form['email'],))
+        #dbcursor.execute('SELECT email, pass FROM test WHERE email = %s', (request.form['email'],))
+        dbcursor.callproc('email_fetch_user', args=(request.form['email'],))
         # Save query result (tuple if found, `None` otherwise)
-        result = dbcursor.fetchone()
+        #result = dbcursor.fetchone()
+        stored_email, stored_password = get_first_result(dbcursor) or (None, None)
         # Verify provided password
         pw_hash = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
-        if result and bcrypt.check_password_hash(pw_hash, result[1]):
+        #if result and bcrypt.check_password_hash(pw_hash, result[1]):
+        if stored_password and bcrypt.check_password_hash(pw_hash, stored_password):
             #For making this easier to check, ## will signify what is in routes.py
             ## Save username as validation of login
             ##session['username'] = result[0]
