@@ -18,19 +18,29 @@ const webAuthnConfig = {
 };
 
 // Find form elements in the DOM
-const biometric = document.getElementById("biometric");
-const biometricForm = document.getElementById("biometric-login-form");
+const loginForm = document.getElementById("login-form");
+const email = document.getElementById("email");
+const authMethodToggler = document.getElementById("auth-method-toggler");
 
-// If the user is using biometrics, use the WebAuthnApp to handle login for us :)
-// Otherwise, just use the regular login form
-biometricForm.addEventListener("submit", event => {
-  event.preventDefault();
+/**
+ * Based on the user's choice to use biometrics, send the request to log them in
+ */
+function sendLoginForm(formSubmissionEvent) {
+  const isUsingBiometrics = authMethodToggler.getAttribute("aria-expanded") === "false";
 
-  webAuthnConfig.username = biometric.value;
-  new WebAuthnApp(webAuthnConfig).register();
-})
+  if (isUsingBiometrics) {
+    formSubmissionEvent.preventDefault();
 
-// Handle biometric registration errors
-document.addEventListener("webauthn-register-error", (err) => {
+    // Use the WebAuthnApp to handle the biometric login flow 
+    webAuthnConfig.username = email.value;
+    new WebAuthnApp(webAuthnConfig).register();
+  }
+
+  // Otherwise (for passwords), just use the default form submission
+}
+
+// Bind event listeners
+loginForm.addEventListener("submit", sendLoginForm);
+document.addEventListener("webauthn-register-error", err => {
   alert("Registration error: " + err.detail.message); // TODO: Use a modal
 });
