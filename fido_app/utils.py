@@ -22,41 +22,17 @@ def ensure_environ_vars(required_vars):
         )
 
 
-def get_first_result(dbcursor):
-    '''
-    Returns the first result from the stored procedure that was just called, 
-    or None if there were no results.
-    '''
-    results = list(dbcursor.stored_results())
-
-    if len(results) == 0:
-        return None
-
-    first_result = results[0].fetchone()
-
-    return first_result
-
-
 def validate_email(email):
     '''
     Returns True if email is a properly formatted email address;
     returns False otherwise.
-    '''    
-    return isinstance(email, str) and re.search(r'^([a-z0-9]+[\._]?)*[a-z0-9]+@\w+\.\w+$', email) is not None
+    '''
+    return (
+        isinstance(email, str)
+        and re.search(r'^([a-z0-9]+[\._]?)*[a-z0-9]+@\w+\.\w+$', email) is not None
+    )
 
 
-def validate_display_name(name):
-    '''
-    Returns True if name is a properly formatted display name,
-    which at the moment means name contains at least one word character;
-    returns False otherwise.
-    '''
-    return isinstance(name, str) and re.search(r'\w', name) is not None
-
-
-def log(msg, sep='#', file_out=sys.stderr):
-    '''
-    Print message with timestamp to file (stderr by default);
-    includes a sep argument to help distinguish log messages in the console.
-    '''
-    print('%s\n(%s) %s\n%s' % (sep * 64, time.ctime(), msg, sep * 64), file=file_out)
+def get_display_name(email):
+    '''Returns the first part of an email as a display name'''
+    return email[: email.index('@')]

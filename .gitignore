@@ -1,6 +1,9 @@
 # Environment variable files
 **/.env
 
+# Any test databases
+**/*.db
+
 # Pycache
 **/__pycache__
 
