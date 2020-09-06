@@ -14,7 +14,7 @@ from flask import (
 from .models import User
 from flask_login import login_required, login_user
 from . import app, login_manager, db
-from .utils import validate_email, get_first_result, get_display_name
+from .utils import validate_email, get_display_name
 
 
 RP_ID = os.getenv('RP_ID')
