@@ -5,13 +5,12 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-    
     runs-on: ubuntu-latest
 
     steps:
@@ -28,12 +27,10 @@ jobs:
       - name: Test with pytest
         env:
           FLASK_SECRET_KEY: ${{secrets.FLASK_SECRET_KEY}}
-          DB_NAME: ${{secrets.DB_NAME}}
-          DB_HOST: ${{secrets.DB_HOST}}
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          DATABASE_URL: ${{secrets.DATABASE_URL}}
           RP_ID: ${{secrets.RP_ID}}
           RP_NAME: ${{secrets.RP_NAME}}
           ORIGIN: ${{secrets.ORIGIN}}
+          TRUST_ANCHOR_DIR: ${{secrets.TRUST_ANCHOR_DIR}}
         run: |
           pytest test.py
