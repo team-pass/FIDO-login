@@ -1,5 +1,7 @@
+import sys
 from fido_app import app
 import flask
+
 
 def test():
     with app.test_request_context('/?name=Peter'):
