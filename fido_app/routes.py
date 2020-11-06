@@ -97,7 +97,7 @@ def register():
     db.session.commit()
 
     # Redirect user to login page
-    flash('Registered your account successfully!', 'message')
+    flash(f'Successfully registered with email {email}')
     return redirect(url_for('login'))
 
 

@@ -23,7 +23,13 @@ If you haven't already, take a brief look at [how git works](https://guides.gith
 pip install -r requirements.txt
 ```
 
-7. Run the server using 
+7. Create the database with the correct tables
+
+```bash
+python setup-db.py
+```
+
+8. Run the server using 
 
 ```bash
 python run.py
