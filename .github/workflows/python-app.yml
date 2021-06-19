@@ -32,4 +32,4 @@ jobs:
           ORIGIN: ${{secrets.ORIGIN}}
           TRUST_ANCHOR_DIR: ${{secrets.TRUST_ANCHOR_DIR}}
         run: |
-          pytest test.py
+          pytest tests/
