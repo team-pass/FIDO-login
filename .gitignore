@@ -12,3 +12,7 @@
 
 # Vscode settings
 **/.vscode
+
+# Build/test artifacts
+**/*.pyc
+.cache

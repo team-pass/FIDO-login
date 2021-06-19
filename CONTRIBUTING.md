@@ -35,6 +35,15 @@ python setup-db.py
 python run.py
 ```
 
+## 🧪 Running Tests
+We use `pytest` to verify the behavior of our application. You can invoke our test suite by running:
+
+```bash
+pytest tests/
+```
+
+As you add new features to the application, please add unit tests to ensure that your changes work as intended!
+
 ## 📝 Adding a New Feature
 
 

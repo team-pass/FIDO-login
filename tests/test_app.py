@@ -1,4 +1,3 @@
-import sys
 from fido_app import app
 import flask
 
