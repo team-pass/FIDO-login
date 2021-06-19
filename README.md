@@ -24,15 +24,15 @@ A FIDO-compliant web app that has biometric authentication capabilities. Built u
 
 ## 🚀 Quick Start
 
-***Note:*** _It's recommended to install Python packages on a per-project basis within virtual environments. Flask provides a quick explanation of the motivation and process [here](https://flask.palletsprojects.com/en/1.1.x/installation/#virtual-environments)._
-
 ```bash
 pip install -r requirements.txt # Downloads all required Python packages
+python setup-db.py              # Creates a test database
 python run.py                   # Runs the server in development mode
 ```
 
-If you get errors about connecting to the database, make sure your environment variables are properly configured. You can check out our contribution guide for more detailed [setup instructions](CONTRIBUTING.md#-download-and-setup).
+***Note:*** _It's recommended to install Python packages on a per-project basis within virtual environments. Flask provides a quick explanation of the motivation and process [here](https://flask.palletsprojects.com/en/1.1.x/installation/#virtual-environments)._
 
+If you get errors about connecting to the database, make sure your environment variables are properly configured. You can check out our contribution guide for more detailed [setup instructions](CONTRIBUTING.md#-download-and-setup).
 
 ## 👨‍💻 Contribution Guide
 

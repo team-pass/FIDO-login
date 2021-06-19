@@ -7,7 +7,7 @@ cybersecurity.
 
 {% block cardTitle %}
 <div class="d-flex flex-row justify-content-between">
-  <span>{{session.email}}'s Account</span>
+  <span>{{current_user.display_name}}'s Account</span>
 
   <form action="{{ url_for('logout') }}" method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -18,8 +18,8 @@ cybersecurity.
 
 {% block cardBody %}
 <p>
-  <strong>Favorite number:</strong>
-  <span id="fav-num">{{favorite_number}}</span>
+  <strong>High Score: </strong>
+  <span>{{current_user.high_score}}</span>
 </p>
 <canvas width="400" height="400" id="snake-game" class="card"></canvas>
 

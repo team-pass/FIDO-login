@@ -1,17 +1,23 @@
 ''' API ROUTE IMPLEMENTATION '''
+
 from flask import request, session, render_template, url_for, redirect, flash
-from . import app, bcrypt, dbconnection, dbcursor
-import mysql
-from .utils import get_first_result
-from random import randint
+from flask_login import current_user, login_user, logout_user, login_required
+from . import app, login_manager, db
+from .utils import validate_email, get_display_name
+from .models import User
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Loads a user based on their id, returning None if they don't exist"""
+    return User.query.get(int(user_id))
 
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Redirect the user to the profile page if they're already logged in
-    if 'email' in session:
+    if current_user.is_authenticated:
         return redirect(url_for('profile'))
 
     # Return the login template if the user is just GETTING the page
@@ -24,34 +30,31 @@ def login():
 
     # Ensure all required fields
     if not (email and password):
-        flash('Must enter a username and password', 'error')
+        flash('Must enter an email and a password', 'error')
         return redirect(url_for('login'))
 
     # Check that a user has a matching email/password combo
-    dbcursor.callproc('email_fetch_user', args=(email,))
-    stored_email, stored_password = get_first_result(dbcursor) or (None, None)
+    user = User.query.filter_by(email=email).first()
 
     # If the user's password is incorrect, let them know
-    if not bcrypt.check_password_hash(stored_password, password):
-        flash('Username or passsword is incorrect', 'error')
+    if not user or not user.check_password(password):
+        flash('Email or passsword is incorrect', 'error')
         return redirect(url_for('login'))
 
     # Log the user into the profile page
-    session['email'] = stored_email
+    login_user(user, remember=True)
     return redirect(url_for('profile'))
 
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    # Remove record of email in session cookie before redirection
-    session.pop('email', None)
+    logout_user()
     return redirect(url_for('login'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    # Redirect the user to the profile page if they're already logged in
-    if 'email' in session:
+    if current_user.is_authenticated:
         return redirect(url_for('profile'))
 
     # Serve the page on a GET request
@@ -73,54 +76,47 @@ def register():
         flash('Passwords did not match', 'error')
         return redirect(url_for('register'))
 
+    # Ensure the email is valid
+    if not validate_email(email):
+        flash('Invalid email address', 'error')
+        return redirect(url_for('register'))
+
     # Ensure the user's email isn't already in use
-    dbcursor.callproc('user_select_users', args=(email,))
-    if get_first_result(dbcursor):
+    if User.query.filter_by(email=email).first():
         flash('Email address is already in use', 'error')
         return redirect(url_for('register'))
 
-    # Add new user entry to database table
-    username = email
-    favorite_number = randint(0, 100)
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    # TODO: fix this to only use email, password, & favorite number!
-    dbcursor.callproc(
-        'register_user', args=(username, hashed_password, email, favorite_number),
+    # Add new user entry to database
+    new_user = User(
+        email=email,
+        display_name=get_display_name(email),
+        icon_url='https://example.com',
     )
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
 
     # Redirect user to login page
-    flash('Registered your account successfully!', 'message')
+    flash(f'Successfully registered with email {email}')
     return redirect(url_for('login'))
 
 
 # Page to edit user information
 @app.route('/profile')
+@login_required
 def profile():
-    # A user must be logged in to view their profile
-    if 'email' not in session:
-        return redirect(url_for('login'))
-
-    # If the user's favorite number isn't set, default to the string "??"
-    # TODO: implement this call as a stored procedure
-    # dbcursor.execute(
-    #     'SELECT favorite_number FROM users WHERE email = %s LIMIT 1', (session["email"],)
-    # )
-    favorite_number = dbcursor.fetchone() or "??"
-
-    # Pass the favorite_number variable to the profile template
-    return render_template('profile.html', favorite_number=favorite_number)
+    return render_template('profile.html')
 
 
 @app.route('/delete-account', methods=['POST'])
+@login_required
 def delete_account():
-    if 'email' in session:
-        email = session['email']
-        dbcursor.callproc('delete_account_by_email', (email,))
+    email = current_user.email
 
-        flash(f'Successfully deleted account for {email}', 'message')
-    else:
-        flash('Must be logged in to delete your account', 'error')
+    # Delete the user in the database and log them out
+    User.query.filter_by(id=current_user.id).delete()
+    logout_user()
+    db.session.commit()
 
-    session.pop('email', None)
+    flash(f'Successfully deleted the account for "{email}"', 'message')
     return redirect(url_for('login'))

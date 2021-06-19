@@ -14,15 +14,7 @@ git clone https://github.com/team-pass/FIDO-login.git
 
 If you haven't already, take a brief look at [how git works](https://guides.github.com/introduction/git-handbook/)
 
-4. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in the the root of the project. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/)). Our `.env` looks something like this:
-
-```bash
-FLASK_SECRET_KEY="some secret key"
-DB_NAME="some database name"
-DB_HOST="some IP address"
-DB_USER="some username"
-DB_PASSWORD="some password"
-```
+4. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in the the root of the project. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/) for our production environment and [SQLite](https://www.sqlite.org/index.html) for development). You can see what our `.env` looks like in the [`.env.example`](./.env.example) file.
 
 5. Setup and activate a Python virtual environment (see the [official Python docs on venv](https://docs.python.org/3/tutorial/venv.html)).
 6. Install the necessary Python packages using
@@ -31,11 +23,26 @@ DB_PASSWORD="some password"
 pip install -r requirements.txt
 ```
 
-7. Run the server using 
+7. Create the database with the correct tables
+
+```bash
+python setup-db.py
+```
+
+8. Run the server using 
 
 ```bash
 python run.py
 ```
+
+## 🧪 Running Tests
+We use `pytest` to verify the behavior of our application. You can invoke our test suite by running:
+
+```bash
+pytest tests/
+```
+
+As you add new features to the application, please add unit tests to ensure that your changes work as intended!
 
 ## 📝 Adding a New Feature
 

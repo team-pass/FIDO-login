@@ -1,4 +1,4 @@
-import os
+import os, sys, re
 
 ''' Contains useful utility functions for our Flask app '''
 
@@ -22,16 +22,17 @@ def ensure_environ_vars(required_vars):
         )
 
 
-def get_first_result(dbcursor):
+def validate_email(email):
     '''
-    Returns the first result from the stored procedure that was just called, 
-    or None if there were no results.
+    Returns True if email is a properly formatted email address;
+    returns False otherwise.
     '''
-    results = list(dbcursor.stored_results())
+    return (
+        isinstance(email, str)
+        and re.search(r'^([a-z0-9]+[\._]?)*[a-z0-9]+@\w+\.\w+$', email) is not None
+    )
 
-    if len(results) == 0:
-        return None
 
-    first_result = results[0].fetchone()
-
-    return first_result
+def get_display_name(email):
+    '''Returns the first part of an email as a display name'''
+    return email[: email.index('@')]
