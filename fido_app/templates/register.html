@@ -8,25 +8,25 @@ cybersecurity.
 
 {% block cardBody %}
 <!--Registration Form-->
-<form id="registration-form" method="POST">
+<form id="registration-form" method="POST" timed-element timed-events="submit">
 
   <!-- CSRF Protection -->
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
   <div class="form-group">
     <label for="email">Email address</label>
-    <input name="email" type="email" class="form-control" id="email" required />
+    <input name="email" type="email" class="form-control" id="email" autocomplete="email" required timed-element />
   </div>
 
   <!-- Password inputs for registration -->
   <section id="password-inputs" class="collapse show">
     <div class="form-group">
       <label for="password">Password</label>
-      <input name="password" type="password" class="form-control" id="password" required />
+      <input name="password" type="password" class="form-control" id="password" autocomplete="new-password" required timed-element />
     </div>
     <div class="form-group">
       <label for="confirm-password">Confirm Password</label>
-      <input name="confirm-password" type="password" class="form-control" id="confirm-password" required />
+      <input name="confirm-password" type="password" class="form-control" id="confirm-password" autocomplete="new-password" required timed-element />
     </div>
   </section>
 
@@ -39,4 +39,5 @@ cybersecurity.
 <script src="{{ url_for('static', filename='scripts/lib/utils.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/auth-method-toggler.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/register.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/timing.js') }}"></script>
 {% endblock %}
