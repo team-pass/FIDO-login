@@ -67,4 +67,4 @@ class Interaction(db.Model):
     timestamp = db.Column(db.DateTime, unique=False, nullable=False)
 
     def __repr__(self):
-        return f'<Session token {self.user_id} triggered event {self.event_type} at {self.timestamp}>'
+        return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}>'
