@@ -12,7 +12,6 @@ class User(db.Model, UserMixin):
     # User info
     email = db.Column(db.String(80), unique=True, nullable=False)
     display_name = db.Column(db.String(160), unique=False, nullable=False)
-    device_id = db.Column(db.String(64), unique=True, nullable=False)
     icon_url = db.Column(db.String(2083))
     high_score = db.Column(db.Integer, default=0)
 
