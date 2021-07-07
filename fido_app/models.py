@@ -46,7 +46,9 @@ class Session(db.Model):
     'user' property is implicitly created by relationship in User class
     '''
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     token = db.Column(db.String(32), unique=False, nullable=False)
     
     interactions = db.relationship('Interaction', lazy=True, backref=db.backref('session', lazy=True))
@@ -61,7 +63,9 @@ class Interaction(db.Model):
     'session' property is implicitly created by relationship in Session class
     '''
 
-    session_token = db.column(db.String(32), db.ForeignKey('session.token'), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    
+    session_token = db.column(db.String(32), db.ForeignKey('session.token'))
     event = db.Column(db.Enum('focus', 'click', 'submit'), nullable=False, validate_strings=True)
     page = db.Column(db.Enum('register', 'login'), nullable=False, validate_strings=True)
     timestamp = db.Column(db.DateTime, unique=False, nullable=False)
