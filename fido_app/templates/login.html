@@ -8,7 +8,7 @@ cybersecurity.
 {% block cardBody %}
 
 <!-- Login Form -->
-<form id="login-form" method="POST" timed-element timed-events="submit">
+<form id="login-form primary-form" method="POST" timed-element timed-events="submit">
 
   <!-- CSRF Protection -->
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -36,5 +36,5 @@ cybersecurity.
 <script src="{{ url_for('static', filename='scripts/lib/utils.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/auth-method-toggler.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/login.js') }}"></script>
-<script src="{{ url_for('static', filename='scripts/timing.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/interaction-logging.js') }}"></script>
 {% endblock %}
