@@ -11,7 +11,7 @@ const interactions = [];
 const timedElements = document.querySelectorAll("[timed-element]");
 const form = document.querySelector(".primary-form");
 timedElements.forEach(attachTimingListeners);
-form.addEventListener('submit', submitInteractions);
+form.addEventListener("submit", submitInteractions);
 
 /**
  * Attaches timing listeners to the given HTML element. It will attach events to
@@ -27,6 +27,7 @@ function attachTimingListeners(element) {
             interactions.push({
                 timestamp: Date.now(),
                 element: element.id,
+                page: window.location.pathname,
                 event,
             });
         });
@@ -35,14 +36,14 @@ function attachTimingListeners(element) {
 
 /**
  * Returns a list of events that this element should listen for. That list
- * is either specified using the element's `timed-events` attribute or 
+ * is either specified using the element"s `timed-events` attribute or 
  * using the default list of events.
  * 
  * @param {HTMLElement} element
  * @returns list of event types to listen on
  */
 function getTimedEventsFor(element) {
-    const DEFAULT_EVENTS = ['focus'];
+    const DEFAULT_EVENTS = ["focus"];
     const customEvents = element.getAttribute("timed-events");
 
     return (customEvents && customEvents.split(" ")) || DEFAULT_EVENTS;
@@ -50,21 +51,22 @@ function getTimedEventsFor(element) {
 
 /**
  * Submits all interactions that were logged on this page.
- * @param {Event} event the form submit event
  */
-async function submitInteractions(event) {
-    event.preventDefault();
+async function submitInteractions() {
     const url = "/interactions/submit/";
 
     try {
         const response = await fetch(url, {
-            method: 'post',
+            method: "POST",
             body: JSON.stringify(interactions),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": CSRF_TOKEN, // This value is injected by Flask
+            },
         });
 
         if (!response.ok) {
             console.error("Posting the interactions didn't succeed. Response:", response);
-            return;
         }
 
         // Clear interactions to prevent logging duplicate events
