@@ -25,6 +25,9 @@ class User(db.Model, UserMixin):
     sign_count = db.Column(db.Integer, default=0)
     rp_id = db.Column(db.String(253), nullable=True)
 
+    # Page interaction info
+    sessions = db.relationship('Session', lazy=True, backref=db.backref('user', lazy=True))
+
     def __repr__(self):
         return f'<User {self.display_name} {self.username}>'
 
@@ -35,3 +38,37 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         '''Checks if the given plaintext password matches the salt and hash for the given user'''
         return check_password_hash(self.password_hash, password)
+
+
+class Session(db.Model):
+    '''
+    Model associating users with persistent cookie tokens;
+    'user' property is implicitly created by relationship in User class
+    '''
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    token = db.Column(db.String(32), unique=True, nullable=False)
+    
+    interactions = db.relationship('Interaction', lazy=True, backref=db.backref('session', lazy=True))
+
+    def __repr__(self):
+        return f'<User id {self.user_id} has session token {self.token}>'
+    
+    
+class Interaction(db.Model):
+    '''
+    Model associating persistent cookie token with individual page interactions;
+    'session' property is implicitly created by relationship in Session class
+    '''
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    session_token = db.Column(db.String(32), db.ForeignKey('session.token'))
+    event = db.Column(db.Enum('focus', 'click', 'submit'), nullable=False, validate_strings=True)
+    page = db.Column(db.Enum('register', 'login'), nullable=False, validate_strings=True)
+    timestamp = db.Column(db.DateTime, unique=False, nullable=False)
+
+    def __repr__(self):
+        return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}> on page {self.page}'
