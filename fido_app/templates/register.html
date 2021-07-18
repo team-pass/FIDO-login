@@ -8,7 +8,7 @@ cybersecurity.
 
 {% block cardBody %}
 <!--Registration Form-->
-<form id="registration-form primary-form" method="POST" timed-element timed-events="submit">
+<form id="registration-form" class="primary-form" method="POST" timed-element timed-events="submit">
 
   <!-- CSRF Protection -->
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />

@@ -9,8 +9,8 @@
  */
 const interactions = [];
 const timedElements = document.querySelectorAll("[timed-element]");
-const form = document.querySelector("#primary-form");
-timedElements.forEach(attachListeners);
+const form = document.querySelector(".primary-form");
+timedElements.forEach(attachTimingListeners);
 form.addEventListener('submit', submitInteractions);
 
 /**
@@ -19,7 +19,7 @@ form.addEventListener('submit', submitInteractions);
  * 
  * @param {HTMLElement} element 
  */
-function attachListeners(element) {
+function attachTimingListeners(element) {
     const timedEvents = getTimedEventsFor(element);
 
     timedEvents.forEach(event => {
