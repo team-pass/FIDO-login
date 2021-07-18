@@ -67,7 +67,7 @@ async function submitInteractions(event) {
             return;
         }
 
-        // Clear interactions object (to prevent duplicate interactions)
+        // Clear interactions to prevent logging duplicate events
         interactions = [];
     } catch(e) {
         console.error("Couldn't submit:", e);
