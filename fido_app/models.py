@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
     rp_id = db.Column(db.String(253), nullable=True)
 
     # Page interaction info
-    tokens = db.relationship('Token', lazy=True, backref=db.backref('user', lazy=True))
+    sessions = db.relationship('Session', lazy=True, backref=db.backref('user', lazy=True))
 
     def __repr__(self):
         return f'<User {self.display_name} {self.username}>'
@@ -49,7 +49,7 @@ class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    token = db.Column(db.String(32), unique=False, nullable=False)
+    token = db.Column(db.String(32), unique=True, nullable=False)
     
     interactions = db.relationship('Interaction', lazy=True, backref=db.backref('session', lazy=True))
 
@@ -65,10 +65,10 @@ class Interaction(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     
-    session_token = db.column(db.String(32), db.ForeignKey('session.token'))
+    session_token = db.Column(db.String(32), db.ForeignKey('session.token'))
     event = db.Column(db.Enum('focus', 'click', 'submit'), nullable=False, validate_strings=True)
     page = db.Column(db.Enum('register', 'login'), nullable=False, validate_strings=True)
     timestamp = db.Column(db.DateTime, unique=False, nullable=False)
 
     def __repr__(self):
-        return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}>'
+        return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}> on page {self.page}'
