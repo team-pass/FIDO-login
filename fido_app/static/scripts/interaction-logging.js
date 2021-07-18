@@ -27,7 +27,6 @@ function attachListeners(element) {
             interactions.push({
                 timestamp: Date.now(),
                 element: element.id,
-                page: window.location.pathname, // Should this be determined client or server side?
                 event,
             });
         });
@@ -64,8 +63,12 @@ async function submitInteractions(event) {
         });
 
         if (!response.ok) {
-            console.error("Posting the interactions didn't succeed. Response: ", response);
+            console.error("Posting the interactions didn't succeed. Response:", response);
+            return;
         }
+
+        // Clear interactions object (to prevent duplicate interactions)
+        interactions = [];
     } catch(e) {
         console.error("Couldn't submit:", e);
     }
