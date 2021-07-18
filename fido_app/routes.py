@@ -1,10 +1,11 @@
 ''' API ROUTE IMPLEMENTATION '''
 
+import datetime
 from flask import request, session, render_template, url_for, redirect, flash
 from flask_login import current_user, login_user, logout_user, login_required
 from . import app, login_manager, db
 from .utils import validate_email, get_display_name
-from .models import User
+from .models import User, Session, Interaction
 
 
 @login_manager.user_loader
@@ -120,3 +121,24 @@ def delete_account():
 
     flash(f'Successfully deleted the account for "{email}"', 'message')
     return redirect(url_for('login'))
+
+
+# Interaction log posting
+@app.route('/interactions/submit', methods=['POST'])
+def submit_interactions():
+    data = request.json
+
+    desired_keys = {'element', 'event', 'page', 'timestamp'}
+    is_session_updated = False
+    for log in data:
+        if desired_keys.issubset(log.keys()):
+            new_interaction = Interaction(
+                element=log['element'],
+                event=log['event'],
+                page=log['page'],
+                timestamp=datetime.utcfromtimestamp(log['timestamp']),
+            )
+            db.session.add(new_interaction)
+            is_session_updated = True
+    if is_session_updated:
+        db.session.commit()

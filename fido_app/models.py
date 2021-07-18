@@ -66,6 +66,7 @@ class Interaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     session_token = db.Column(db.String(32), db.ForeignKey('session.token'))
+    element = db.Column(db.String(32), unique=False, nullable=False)
     event = db.Column(db.Enum('focus', 'click', 'submit'), nullable=False, validate_strings=True)
     page = db.Column(db.Enum('register', 'login'), nullable=False, validate_strings=True)
     timestamp = db.Column(db.DateTime, unique=False, nullable=False)
