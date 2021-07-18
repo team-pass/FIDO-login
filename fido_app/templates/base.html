@@ -48,6 +48,12 @@
       integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
     </script>
 
+    <!--Inject the CSRF token to be accessible in JS for Fetch requests 
+      (see https://flask-wtf.readthedocs.io/en/0.15.x/csrf/#javascript-requests)-->
+    <script type="text/javascript">
+      const CSRF_TOKEN = "{{ csrf_token() }}";
+    </script>
+
     {% block customJS %}{% endblock %}
   </body>
 

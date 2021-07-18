@@ -3,7 +3,7 @@
 <!-- Form components -->
 {% macro auth_toggler() -%}
 <button id="auth-method-toggler" data-toggle="collapse" data-target="#password-inputs" type="button"
-    aria-expanded="true" aria-controls="password-inputs">
+    aria-expanded="true" aria-controls="password-inputs" timed-element timed-events="click">
     <div class="switch-track">
         <div class="roller">
             <img class="icon password" src="{{url_for('static', filename='images/password.svg')}}" />
@@ -15,7 +15,7 @@
 
 {% macro form_footer(action_description, action_location) -%}
 <section class="d-flex justify-content-between align-items-center">
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button id="submit" type="submit" class="btn btn-primary">Submit</button>
     {{ auth_toggler() }}
 </section>
 <small class="form-text text-muted">{{ action_description}}

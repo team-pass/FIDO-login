@@ -8,21 +8,21 @@ cybersecurity.
 {% block cardBody %}
 
 <!-- Login Form -->
-<form id="login-form" method="POST">
+<form id="login-form" class="primary-form" method="POST" timed-element timed-events="submit">
 
   <!-- CSRF Protection -->
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
   <div class="form-group">
     <label for="email">Email address</label>
-    <input name="email" type="email" class="form-control" id="email" required />
+    <input name="email" type="email" class="form-control" id="email" autocomplete="email" required timed-element />
   </div>
 
   <!-- Password-related inputs -->
   <section id="password-inputs" class="collapse show">
     <div class="form-group">
       <label for="password">Password</label>
-      <input name="password" type="password" class="form-control" id="password" required />
+      <input name="password" type="password" class="form-control" id="password" autocomplete="current-password" timed-element />
     </div>
   </section>
 
@@ -36,4 +36,5 @@ cybersecurity.
 <script src="{{ url_for('static', filename='scripts/lib/utils.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/auth-method-toggler.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/login.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/interaction-logging.js') }}"></script>
 {% endblock %}
