@@ -5,7 +5,7 @@ from flask import request, session, render_template, url_for, redirect, flash
 from flask_login import current_user, login_user, logout_user, login_required
 from . import app, login_manager, db
 from .utils import validate_email, get_display_name
-from .models import User, Session, Interaction
+from .models import User, Interaction
 
 
 @login_manager.user_loader
@@ -43,6 +43,7 @@ def login():
         return redirect(url_for('login'))
 
     # Log the user into the profile page
+    user.add_session(session, commit=True)
     login_user(user, remember=True)
     return redirect(url_for('profile'))
 
@@ -93,9 +94,12 @@ def register():
         display_name=get_display_name(email),
         icon_url='https://example.com',
     )
+
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
+
+    new_user.add_session(session, commit=True)
 
     # Redirect user to login page
     flash(f'Successfully registered with email {email}')

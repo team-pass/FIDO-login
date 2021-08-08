@@ -1,15 +1,13 @@
 ''' BACKEND PROJECT PACKAGE INITIALIZATION '''
 
+import uuid
 from flask import Flask
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from .config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.sessions import SecureCookieSessionInterface
-import sys, time
-import os
-import uuid
+from .config import Config
 
 # Create instance of Flask application
 app = Flask(__name__)
