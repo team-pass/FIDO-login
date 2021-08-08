@@ -133,6 +133,7 @@ def submit_interactions():
     for log in data:
         if desired_keys.issubset(log.keys()):
             new_interaction = Interaction(
+                session_token=session['token'],
                 element=log['element'],
                 event=log['event'],
                 page=log['page'],

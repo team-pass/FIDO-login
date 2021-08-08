@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from flask.sessions import SecureCookieSessionInterface
 import sys, time
 import os
-import random, string
+import uuid
 
 # Create instance of Flask application
 app = Flask(__name__)
@@ -19,7 +19,7 @@ app.config.from_object(Config)
 class SecureCookieSessionInterfaceWithToken(SecureCookieSessionInterface):
     def open_session(self, app, request):
         new_session = super().open_session(app, request)
-        new_session['token'] = ''.join(random.choice(string.ascii_letters) for i in range(32))
+        new_session['token'] = str(uuid.uuid4())
         return new_session
 
     def save_session(self, app, session, response):

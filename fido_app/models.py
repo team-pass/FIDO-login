@@ -49,7 +49,7 @@ class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    token = db.Column(db.String(32), unique=True, nullable=False)
+    token = db.Column(db.String(36), unique=True, nullable=False)
     
     interactions = db.relationship('Interaction', lazy=True, backref=db.backref('session', lazy=True))
 
@@ -65,10 +65,10 @@ class Interaction(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     
-    session_token = db.Column(db.String(32), db.ForeignKey('session.token'))
+    session_token = db.Column(db.String(36), db.ForeignKey('session.token'))
     element = db.Column(db.String(32), unique=False, nullable=False)
-    event = db.Column(db.Enum('focus', 'click', 'submit'), nullable=False, validate_strings=True)
-    page = db.Column(db.Enum('register', 'login'), nullable=False, validate_strings=True)
+    event = db.Column(db.Enum('focus', 'click', 'submit', validate_strings=True), nullable=False)
+    page = db.Column(db.Enum('register', 'login', validate_strings=True), nullable=False)
     timestamp = db.Column(db.DateTime, unique=False, nullable=False)
 
     def __repr__(self):
