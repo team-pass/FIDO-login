@@ -31,3 +31,9 @@ class Config(object):
     ORIGIN = os.getenv('ORIGIN')
     TRUST_ANCHOR_DIR = os.getenv('TRUST_ANCHOR_DIR')
 
+    # Flask Sessions
+    SESSION_TYPE = 'sqlalchemy'
+    SESSION_COOKIE_SECURE = True
+    SESSION_USE_SIGNER = True
+    SESSION_SQLALCHEMY_TABLE = 'sessions'
+
