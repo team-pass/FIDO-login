@@ -18,9 +18,10 @@ app.config.from_object(Config)
 # Create own implementation of SessionInterface and set for app
 class SecureCookieSessionInterfaceWithToken(SecureCookieSessionInterface):
     def open_session(self, app, request):
-        new_session = super().open_session(app, request)
-        new_session['token'] = str(uuid.uuid4())
-        return new_session
+        session = super().open_session(app, request)
+        if 'token' not in session:
+            session['token'] = str(uuid.uuid4())
+        return session
 
     def save_session(self, app, session, response):
         super().save_session(app, session, response)
