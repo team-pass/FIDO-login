@@ -4,7 +4,7 @@ import datetime
 from flask import request, session, render_template, url_for, redirect, flash
 from flask_login import current_user, login_user, logout_user, login_required
 from . import app, login_manager, db
-from .utils import validate_email, get_display_name
+from .utils import validate_email, get_display_name, add_token_to_session
 from .models import User, Session, Interaction
 
 
@@ -23,6 +23,7 @@ def login():
 
     # Return the login template if the user is just GETTING the page
     if request.method == 'GET':
+        add_token_to_session(session)
         return render_template('login.html')
 
     # Otherwise, it's a post request
@@ -124,8 +125,10 @@ def delete_account():
 
 
 # Interaction log posting
-@app.route('/interactions/submit', methods=['POST'])
+@app.route('/interactions/submit', methods=['GET', 'POST'])
 def submit_interactions():
+    print('SESSION = ' + str(session))
+    print('SESSSION ID = ' + session['_id'])
     data = request.json
 
     desired_keys = {'element', 'event', 'page', 'timestamp'}
