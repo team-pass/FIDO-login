@@ -9,10 +9,23 @@ from flask_migrate import Migrate
 from flask.sessions import SecureCookieSessionInterface
 import sys, time
 import os
+import random, string
 
 # Create instance of Flask application
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Create own implementation of SessionInterface and set for app
+class SecureCookieSessionInterfaceWithToken(SecureCookieSessionInterface):
+    def open_session(self, app, request):
+        new_session = super().open_session(app, request)
+        new_session['token'] = ''.join(random.choice(string.ascii_letters) for i in range(32))
+        return new_session
+
+    def save_session(self, app, session, response):
+        super().save_session(app, session, response)
+
+app.session_interface = SecureCookieSessionInterfaceWithToken()
 
 # Setup the database
 db = SQLAlchemy(app)
@@ -26,14 +39,6 @@ login_manager.login_message_category = "error"
 
 # Adding CSRFProtection
 csrf = CSRFProtect(app)
-
-# Create own implementation of Session
-class MySession(SecureCookieSessionInterface):
-    def open_session(self, app, request):
-        pass
-
-    def save_session(self, app, session, response):
-        session.save()
 
 # import declared routes
 from . import routes, webauthn_routes
