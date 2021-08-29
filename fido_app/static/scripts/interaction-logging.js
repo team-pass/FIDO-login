@@ -7,7 +7,7 @@
  * 
  * Otherwise, this script will listen for `focus` events.
  */
-const interactions = [];
+let interactions = [];
 const timedElements = document.querySelectorAll("[timed-element]");
 const form = document.querySelector(".primary-form");
 timedElements.forEach(attachTimingListeners);

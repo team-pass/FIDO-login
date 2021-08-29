@@ -117,15 +117,15 @@ const transformCredentialCreateOptions = (credentialCreateOptionsFromServer) => 
   } = credentialCreateOptionsFromServer;
   user.id = Uint8Array.from(
     atob(credentialCreateOptionsFromServer.user.id
-      .replace(/\_/g, "/")
-      .replace(/\-/g, "+")
+      .replace(/_/g, "/")
+      .replace(/-/g, "+")
     ),
     c => c.charCodeAt(0));
 
   challenge = Uint8Array.from(
     atob(credentialCreateOptionsFromServer.challenge
-      .replace(/\_/g, "/")
-      .replace(/\-/g, "+")
+      .replace(/_/g, "/")
+      .replace(/-/g, "+")
     ),
     c => c.charCodeAt(0));
 
