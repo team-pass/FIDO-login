@@ -79,10 +79,11 @@ class Interaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     session_token = db.Column(db.String(36), db.ForeignKey('session.token'))
-    element = db.Column(db.String(32), unique=False, nullable=False)
+    element = db.Column(db.String(32), nullable=False)
     event = db.Column(db.Enum('focus', 'click', 'submit', validate_strings=True), nullable=False)
-    page = db.Column(db.Enum('register', 'login', validate_strings=True), nullable=False)
-    timestamp = db.Column(db.DateTime, unique=False, nullable=False)
+    page = db.Column(db.Enum('/register', '/login', validate_strings=True), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+    group_id = db.Column(db.String(32), nullable=False)
 
     def __repr__(self):
         return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}> on page {self.page}'

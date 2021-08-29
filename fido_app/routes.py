@@ -1,8 +1,10 @@
 ''' API ROUTE IMPLEMENTATION '''
 
-import datetime
-from flask import request, session, render_template, url_for, redirect, flash
+from datetime import datetime, timezone
+from uuid import uuid4
+from flask import request, session, render_template, url_for, redirect, flash, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
+import sqlalchemy
 from . import app, login_manager, db
 from .utils import validate_email, get_display_name
 from .models import User, Interaction
@@ -16,6 +18,9 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
+def index():
+    return redirect(url_for('login'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -128,22 +133,31 @@ def delete_account():
 
 
 # Interaction log posting
-@app.route('/interactions/submit', methods=['GET', 'POST'])
+@app.route('/interactions/submit', methods=['POST'])
 def submit_interactions():
     data = request.json
+    
+    # Used to tag every interaction submitted in one request
+    request_id = str(uuid4())
 
-    desired_keys = {'element', 'event', 'page', 'timestamp'}
-    is_session_updated = False
     for log in data:
-        if desired_keys.issubset(log.keys()):
+        try:
             new_interaction = Interaction(
                 session_token=session['token'],
                 element=log['element'],
                 event=log['event'],
                 page=log['page'],
-                timestamp=datetime.utcfromtimestamp(log['timestamp']),
+                timestamp=datetime.fromtimestamp(log['timestampMs'] / 1000, timezone.utc),
+                group_id=request_id,
             )
             db.session.add(new_interaction)
-            is_session_updated = True
-    if is_session_updated:
-        db.session.commit()
+        except KeyError as e:
+            return jsonify(error=f'An interaction is missing a required key: {e.args[0]}'), 400
+        except (OSError, OverflowError):
+            return jsonify(error=f'An interaction had an invalid UTC timestamp: {log["timestampMs"]}'), 400
+        except sqlalchemy.exc.DBAPIError as e:
+            return jsonify(error=f'Database error: {e}')
+
+    db.session.commit()
+    
+    return jsonify(success=True)
