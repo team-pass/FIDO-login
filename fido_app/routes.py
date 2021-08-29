@@ -156,7 +156,7 @@ def submit_interactions():
         except (OSError, OverflowError):
             return jsonify(error=f'An interaction had an invalid UTC timestamp: {log["timestampMs"]}'), 400
         except sqlalchemy.exc.DBAPIError as e:
-            return jsonify(error=f'Database error: {e}')
+            return jsonify(error=f'Database error: {e}'), 400
 
     db.session.commit()
     
