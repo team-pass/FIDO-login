@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block pageDescription %}
-This is a FIDO login page created by Team PASS: an undergraduate Gemstone research team from UMD studying
+This is a FIDO account recovery page created by Team PASS: an undergraduate Gemstone research team from UMD studying
 cybersecurity.
 {% endblock %}
-{% block title %}FIDO Login{% endblock %}
-{% block cardTitle %}FIDO Login{% endblock %}
+{% block title %}Account Recovery{% endblock %}
+{% block cardTitle %}Account Recovery{% endblock %}
 {% block cardBody %}
 
 <!-- Login Form -->
@@ -18,19 +18,16 @@ cybersecurity.
     <input name="email" type="email" class="form-control" id="email" autocomplete="email" required timed-element />
   </div>
 
-  <!-- Password-related inputs -->
-  <section id="password-inputs" class="collapse show">
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input name="password" type="password" class="form-control" id="password" autocomplete="current-password" required timed-element />
-    </div>
+  <section class="d-flex justify-content-between align-items-center">
+    <button id="submit" type="submit" class="btn btn-primary">Submit</button>
   </section>
-
-  {% import 'components.html' as components %}
-  {{ components.form_footer("Don't have an account? Register", url_for('register')) }}
   <small class="form-text text-muted">
-    Forgot your password? Recover
-    <a href={{url_for('recover')}}>here</a>
+    No account? Register
+    <a href={{url_for('register')}}>here</a>
+  </small>
+  <small class="form-text text-muted">
+    Remember your password? Login
+    <a href={{url_for('login')}}>here</a>
   </small>
 </form>
 

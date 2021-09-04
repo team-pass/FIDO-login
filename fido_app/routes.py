@@ -161,3 +161,34 @@ def submit_interactions():
     db.session.commit()
     
     return jsonify(success=True)
+
+
+@app.route('/recover', methods=['GET', 'POST'])
+def recover():
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
+
+    # Return the recovery template if the user is just GETTING the page
+    if request.method == 'GET':
+        return render_template('recover.html')
+
+    # Otherwise, it's a post request
+    email = request.form.get('email')
+
+    # Ensure all required fields
+    if not (email):
+        flash('Must enter an email', 'error')
+        return redirect(url_for('recover'))
+
+    # Check that a user has a matching email
+    user = User.query.filter_by(email=email).first()
+
+    # If no account is found, let them know
+    if not user:
+        flash('Email is not associated with an account', 'error')
+        return redirect(url_for('recover'))
+
+    # Send the user an email
+    #user.add_session(session, commit=True)
+    #login_user(user, remember=True)
+    return redirect(url_for('recover'))
