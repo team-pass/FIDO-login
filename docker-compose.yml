@@ -1,0 +1,8 @@
+version: "3"
+services:
+  web:
+    build: ./web
+    ports: ['8080:8080']
+
+    # Connect the local Flask folder so hot reloading works properly in development
+    # volumes: ['./flask:/app']

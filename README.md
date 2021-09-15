@@ -17,14 +17,18 @@ A FIDO-compliant web app that has biometric authentication capabilities. Built u
 
 ## 🗺 Project Layout
 
-- [`fido_app/`](/fido_app): The Flask web app, which handles HTTP request processing and frontend-database interaction
-- [`templates/`](/fido_app/templates): The HTML files for the login, registration, and profile pages
-- [`static/`](/fido_app/static): Assets for our webpages, such as images, JS scripts, and CSS stylesheets
-- [`run.py`](run.py): The driving code for the server (just call `python run.py`)
+- [`flask`](/flask): The Flask Web App (run using `gunicorn`)
+  - [`fido_app/`](/flask/fido_app): The Flask web app, which handles HTTP request processing and frontend-database interaction
+  - [`templates/`](/flask/fido_app/templates): The HTML files for the login, registration, and profile pages
+  - [`static/`](/flask/fido_app/static): Assets for our webpages, such as images, JS scripts, and CSS stylesheets
+  - [`wsgi.py`](/flask/wsgi.py): The driving code for the server (just call `python wsgi.py`)
+- [`nginx`](/nginx): Nginx config folder (used as an HTTP proxy for `gunicorn`)
+- [`docker-compose.yml`](docker-compose.yml): 
 
 ## 🚀 Quick Start
 
 ```bash
+cd flask
 pip install -r requirements.txt # Downloads all required Python packages
 python setup-db.py              # Creates a test database
 python run.py                   # Runs the server in development mode
