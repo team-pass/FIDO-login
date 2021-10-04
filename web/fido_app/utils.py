@@ -1,26 +1,17 @@
-import os, sys, re
+import re
 
 ''' Contains useful utility functions for our Flask app '''
-
-
-def ensure_environ_vars(required_vars):
+def get_database_uri_from(env):
     '''
-    Throws an error if any variable in the provided list isn't 
-    present in the environment. Does nothing otherwise.
+    Use values from the environment to determine a Database URI per the SQLAlchemy schema.
+    See https://docs.sqlalchemy.org/en/14/core/engines.html#database-urls for specifics.
     '''
-    missing_fields = list(filter(lambda var: os.getenv(var) == None, required_vars))
 
-    # If there are any missing fields, create a useful error message
-    if len(missing_fields) > 0:
-        missing_field_str = ''
-
-        for field in missing_fields:
-            missing_field_str += f'\n\t- {field}'
-
-        raise EnvironmentError(
-            f'Missing the following required environment variables: {missing_field_str}\nTo configure them in one place, use a `.env` file (see https://github.com/team-pass/FIDO-login/blob/master/CONTRIBUTING.md)'
-        )
-
+    # SQLite URLs use a local file on disk with no login info
+    if env["DB_PROTOCOL"] == 'sqlite':
+        return f'sqlite:///{env["DB_NAME"]}'
+    
+    return f'{env["DB_PROTOCOL"]}://{env["DB_USERNAME"]}:{env["DB_PASSWORD"]}@{env["DB_HOST"]}/{env["DB_NAME"]}'
 
 def validate_email(email):
     '''

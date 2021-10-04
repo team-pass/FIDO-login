@@ -1,33 +1,21 @@
 '''Flask app configuration'''
 import os
-from .utils import ensure_environ_vars
+from .utils import get_database_uri_from
 from dotenv import load_dotenv
 
-# Throw a descriptive error if the user's environment variables are missing
 load_dotenv()
-ensure_environ_vars(
-    [
-        'FLASK_SECRET_KEY',
-        'DATABASE_URL',
-        'RP_ID',
-        'RP_NAME',
-        'ORIGIN',
-        'TRUST_ANCHOR_DIR',
-    ]
-)
-
 
 class Config(object):
     # Secret Key (for CSRF and session cookie stuff)
-    SECRET_KEY = os.getenv('FLASK_SECRET_KEY')
+    SECRET_KEY = os.environ['FLASK_SECRET_KEY']
 
     # Database setup
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = get_database_uri_from(os.environ)
 
     # Webauthn setup
-    RP_ID = os.getenv('RP_ID')
-    RP_NAME = os.getenv('RP_NAME')
-    ORIGIN = os.getenv('ORIGIN')
-    TRUST_ANCHOR_DIR = os.getenv('TRUST_ANCHOR_DIR')
+    RP_ID = os.environ['RP_ID']
+    RP_NAME = os.environ['RP_NAME']
+    ORIGIN = os.environ['ORIGIN']
+    TRUST_ANCHOR_DIR = os.environ['TRUST_ANCHOR_DIR']
 

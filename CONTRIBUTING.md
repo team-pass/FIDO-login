@@ -14,7 +14,7 @@ git clone https://github.com/team-pass/FIDO-login.git
 
 If you haven't already, take a brief look at [how git works](https://guides.github.com/introduction/git-handbook/)
 
-1. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in `/flask/.env`. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/) for our production environment and [SQLite](https://www.sqlite.org/index.html) for development). You can see what our `.env` looks like in the [`.env.example`](/flask/.env.example) file.
+1. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in `./.env`. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/) for our production environment and [SQLite](https://www.sqlite.org/index.html) for development). You can see what our `.env` looks like in the [`.env.example`](.env.example) file.
 
 2. Setup and activate a Python virtual environment (see the [official Python docs on venv](https://docs.python.org/3/tutorial/venv.html)).
 3. Install the necessary Python packages using
@@ -39,10 +39,30 @@ python run.py
 We use `pytest` to verify the behavior of our application. You can invoke our test suite by running:
 
 ```bash
-pytest tests/
+pytest web/tests/
 ```
 
 As you add new features to the application, please add unit tests to ensure that your changes work as intended!
+
+## 📦 Running a Production Version
+
+To run a production version of the web app, you can simply run
+
+```bash
+docker-compose up
+```
+
+in the root of the repository. The [`docker-compose.yml`](./docker-compose.yml) file defines how to setup the Flask and MariaDB instance. 
+
+### ✈ DB Migrations
+
+To setup the DB on the Dockerized stack, you can run the following commands after starting the services w/ `docker-compose up`:
+
+
+```bash
+docker-compose exec web bash # Opens up a shell in the active `web` service
+python app/setup-db.py       # Sets up the DB
+```
 
 ## 📝 Adding a New Feature
 
@@ -81,7 +101,7 @@ git commit -m "Write a descriptive commit message that describes all of the chan
 6. After you've commited all your changes, it's time to send the code up to GitHub so everyone on Team PASS has access. To do that, run
 
 ```bash
-git push # Sends all of your commited changes to the remote (github.com)
+git push # Sends all of your committed changes to the remote (github.com)
 ```
 
 This command might throw an error because the branch isn't currently tracked by github. In that case, it will show you a command to run, which looks something like this:

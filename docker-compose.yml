@@ -1,8 +1,32 @@
 version: "3"
+
 services:
   web:
     build: ./web
+    restart: always
     ports: ['8080:8080']
-
-    # Connect the local Flask folder so hot reloading works properly in development
-    # volumes: ['./flask:/app']
+    environment: 
+      DB_PROTOCOL: mariadb
+      DB_HOST: 'db:3306'
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+      RP_ID: ${RP_ID}
+      RP_NAME: ${RP_NAME}
+      ORIGIN: ${ORIGIN}
+      TRUST_ANCHOR_DIR: ${TRUST_ANCHOR_DIR}
+      
+    # Make sure source code changes on the host are sent to the container (& vis-versa)
+    volumes:
+      - ./web/:/app
+  
+  db:
+    image: mariadb
+    restart: always
+    expose: [3306]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
