@@ -1,6 +1,6 @@
 ''' ROUTING IMPLEMENTATION BASED ON DUO LABS'S '''
 
-import os, sys, secrets
+import os, sys, webauthn, secrets
 from flask import (
     request,
     session,
@@ -16,12 +16,6 @@ from flask_login import login_required, login_user
 from . import app, login_manager, db
 from .utils import validate_email, get_display_name
 
-from fido2.webauthn import PublicKeyCredentialRpEntity
-from fido2.client import ClientData
-from fido2.server import Fido2Server
-from fido2.ctap2 import AttestationObject, AuthenticatorData
-from fido2 import cbor
-from flask import Flask, session, request, redirect, abort
 
 RP_ID = os.getenv('RP_ID')
 RP_NAME = os.getenv('RP_NAME')
@@ -31,9 +25,6 @@ ORIGIN = os.getenv('ORIGIN')
 # placed in TRUST_ANCHOR_DIR.
 TRUST_ANCHOR_DIR = os.getenv('TRUST_ANCHOR_DIR')
 
-rp = PublicKeyCredentialRpEntity(RP_ID, RP_NAME)
-server = Fido2Server(rp)
-credentials = []
 
 @app.route('/webauthn/registration/start', methods=['POST'])
 def webauthn_registration_start():
@@ -56,22 +47,31 @@ def webauthn_registration_start():
         flash('Email address is already in use', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
 
+    # We strip the saved challenge of padding, so that we can do a byte
+    # comparison on the URL-safe-without-padding challenge we get back
+    # from the browser.
+    # We will still pass the padded version down to the browser so that the JS
+    # can decode the challenge into binary without too much trouble.
+    challenge = secrets.token_urlsafe(32)
     ukey = secrets.token_urlsafe(20)
+    session['registration'] = {
+        'email': email,
+        'display_name': display_name,
+        'challenge': challenge.rstrip('='),
+        'ukey': ukey,
+    }
 
-    registration_data, state = server.register_begin(
-        {
-            "id": ukey,
-            "name": email,
-            "displayName": display_name,
-            "icon": "https://example.com/image.png",
-        },
-        credentials,
-        user_verification="discouraged",
-        authenticator_attachment="cross-platform",
+    make_credential_options = webauthn.WebAuthnMakeCredentialOptions(
+        challenge=challenge,
+        rp_name=RP_NAME,
+        rp_id=RP_ID,
+        user_id=ukey,
+        username=email,
+        display_name=display_name,
+        icon_url='https://example.com',
     )
-    session["state"] = state
-    
-    return cbor.encode(registration_data)
+
+    return jsonify(make_credential_options.registration_dict)
 
 
 @app.route('/webauthn/registration/verify-credentials', methods=['POST'])
@@ -83,13 +83,33 @@ def verify_registration_credentials():
     email = register_info['email']
     display_name = register_info['display_name']
     registration_response = request.form
-    # ^ do we need these?
 
-    cbor.decode(request.get_data())
-    client_data = ClientData(data["clientDataJSON"])
-    att_obj = AttestationObject(data["attestationObject"])
+    # Craft the response from the
+    webauthn_registration_response = webauthn.WebAuthnRegistrationResponse(
+        rp_id=RP_ID,
+        origin=ORIGIN,
+        registration_response=registration_response,
+        challenge=challenge,
+        trust_anchor_dir=TRUST_ANCHOR_DIR,
+        trusted_attestation_cert_required=True,
+        self_attestation_permitted=True,
+        none_attestation_permitted=True,
+        uv_required=False,  # User Verification
+    )
 
-    # how to identify existing credentials?
+    try:
+        webauthn_credential = webauthn_registration_response.verify()
+    except Exception as e:
+        flash(f'Registration failed. Error: {e}', 'error')
+        return make_response(jsonify({'redirect': url_for('register')}), 401)
+
+    # Step 17.
+    #
+    # Check that the credentialId is not yet registered to any other user.
+    # If registration is requested for a credential that is already registered
+    # to a different user, the Relying Party SHOULD fail this registration
+    # ceremony, or it MAY decide to accept the registration, e.g. while deleting
+    # the older registration.
     credential_id_exists = User.query.filter_by(
         credential_id=webauthn_credential.credential_id
     ).first()
@@ -97,10 +117,6 @@ def verify_registration_credentials():
     if credential_id_exists:
         flash('Credential ID already exists.', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
-
-    auth_data = server.register_complete(session["state"], client_data, att_obj)
-
-    credentials.append(auth_data.credential_data)
 
     # Ensure the user's email isn't already in use (TODO: refactor into a function for
     # both registration stages)
@@ -126,8 +142,7 @@ def verify_registration_credentials():
     session.pop('registration', None)
 
     flash(f'Successfully registered with email {email}')
-
-    return cbor.encode({"status": "OK"})
+    return jsonify({'redirect': url_for('login')})
 
 
 @app.route('/webauthn/login/start', methods=['POST'])
@@ -153,10 +168,22 @@ def webauthn_login_start():
     challenge = secrets.token_urlsafe(32)
     session['login'] = {'challenge': challenge.rstrip('=')}
 
-    auth_data, state = server.authenticate_begin(credentials)
-    session["state"] = state
+    webauthn_user = webauthn.WebAuthnUser(
+        user_id=user.ukey,
+        username=user.email,
+        display_name=user.display_name,
+        icon_url=user.icon_url,
+        credential_id=user.credential_id,
+        public_key=user.public_key,
+        sign_count=user.sign_count,
+        rp_id=user.rp_id,
+    )
 
-    return cbor.encode(auth_data)
+    webauthn_assertion_options = webauthn.WebAuthnAssertionOptions(
+        webauthn_user, challenge
+    )
+
+    return jsonify(webauthn_assertion_options.assertion_dict)
 
 
 @app.route('/webauthn/login/verify-assertion', methods=['POST'])
@@ -172,20 +199,25 @@ def webauthn_verify_login():
         flash('User does not exist')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
-    data = cbor.decode(request.get_data())
-    credential_id = data["credentialId"]
-    client_data = ClientData(data["clientDataJSON"])
-    auth_data = AuthenticatorData(data["authenticatorData"])
-    signature = data["signature"]
-
-    server.authenticate_complete(
-        session.pop("state"),
-        credentials,
-        credential_id,
-        client_data,
-        auth_data,
-        signature,
+    # TODO: determine if this info should be stored at the session level
+    webauthn_user = webauthn.WebAuthnUser(
+        user_id=user.ukey,
+        username=user.email,
+        display_name=user.display_name,
+        icon_url=user.icon_url,
+        credential_id=user.credential_id,
+        public_key=user.public_key,
+        sign_count=user.sign_count,
+        rp_id=user.rp_id,
     )
+
+    webauthn_assertion_response = webauthn.WebAuthnAssertionResponse(
+        webauthn_user=webauthn_user,
+        assertion_response=assertion_response,
+        challenge=challenge,
+        origin=ORIGIN,
+        uv_required=False,
+    )  # User Verification
 
     try:
         sign_count = webauthn_assertion_response.verify()
@@ -202,5 +234,4 @@ def webauthn_verify_login():
     session.pop('login', None)
 
     login_user(user)
-    
-    return cbor.encode({"status": "OK"})
+    return jsonify({'redirect': url_for('profile')})
