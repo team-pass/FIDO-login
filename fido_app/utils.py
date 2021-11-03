@@ -1,3 +1,4 @@
+from base64 import b64encode
 import os, sys, re
 
 ''' Contains useful utility functions for our Flask app '''
@@ -36,3 +37,19 @@ def validate_email(email):
 def get_display_name(email):
     '''Returns the first part of an email as a display name'''
     return email[: email.index('@')]
+
+def recursively_b64_encode(data):
+    '''Recursively base64 encodes any bytes-like objects inside the given structure. For now,
+    it only supports lists, dicts, and bytes-like objects'''
+    if isinstance(data, bytes):
+        return b64encode(data).decode('utf-8')
+
+    if isinstance(data, list):
+        for i, v in enumerate(data):
+            data[i] = recursively_b64_encode(v)
+
+    if isinstance(data, dict):
+        for k, v in data.items():
+            data[k] = recursively_b64_encode(v)
+    
+    return data

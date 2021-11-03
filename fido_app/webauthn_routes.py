@@ -14,7 +14,8 @@ from flask import (
 from .models import User
 from flask_login import login_required, login_user
 from . import app, login_manager, db
-from .utils import validate_email, get_display_name
+from .utils import validate_email, get_display_name, recursively_b64_encode
+from base64 import b64encode
 
 from fido2.webauthn import PublicKeyCredentialRpEntity
 from fido2.client import ClientData
@@ -61,7 +62,7 @@ def webauthn_registration_start():
     # from the browser.
     # We will still pass the padded version down to the browser so that the JS
     # can decode the challenge into binary without too much trouble.
-    challenge = secrets.token_urlsafe(32)
+    # challenge = secrets.token_urlsafe(32)
     ukey = secrets.token_urlsafe(20)
 
     """
@@ -122,23 +123,26 @@ def webauthn_registration_start():
         credentials=credentials,
         user_verification="discouraged",
         authenticator_attachment="cross-platform",
-        challenge=challenge,
+        # challenge=challenge,
     )
     # credentials list is not updated by register_begin()
+
+    registration_data = recursively_b64_encode(registration_data)
+    challenge = registration_data['publicKey']['challenge']
+    
+    print(f"\nregistration_data = {registration_data}\n", file=sys.stderr)
+    print(f"\nstate = {session['state']}\n", file=sys.stderr)
+    print(f'\ncredentials = {credentials}\n', file=sys.stderr)
 
     session["state"] = state
     session['registration'] = {
         'email': email,
         'display_name': display_name,
-        'challenge': challenge.rstrip('='),
+        'challenge': challenge,
         'ukey': ukey,
     }
     
-    #print(f"\nregistration_data = {registration_data}\n", file=sys.stderr)
-    #print(f"\nstate = {session['state']}\n", file=sys.stderr)
-    #print(f'\ncredentials = {credentials}\n', file=sys.stderr)
-    
-    return cbor.encode(registration_data)
+    return jsonify(registration_data)
 
 
 @app.route('/webauthn/registration/verify-credentials', methods=['POST'])
