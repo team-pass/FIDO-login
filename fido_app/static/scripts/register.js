@@ -61,9 +61,6 @@ const startBiometricRegistration = async (formData) => {
   let credentialCreateOptionsFromServer;
   try {
     credentialCreateOptionsFromServer = await getCredentialCreateOptionsFromServer(formData);
-
-    // The Yubico Fido2 backend nests the creation option in a 'publicKey' field
-    credentialCreateOptionsFromServer = credentialCreateOptionsFromServer.publicKey;
   } catch (err) {
     return console.error("Failed to generate credential request options:", err);
   }
