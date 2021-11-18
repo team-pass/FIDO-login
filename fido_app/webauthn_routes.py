@@ -61,8 +61,7 @@ def webauthn_registration_start():
     # from the browser.
     # We will still pass the padded version down to the browser so that the JS
     # can decode the challenge into binary without too much trouble.
-    challenge = secrets.token_urlsafe(32)
-    ukey = secrets.token_urlsafe(20)
+    ukey = os.urandom(20)
 
     """
     registration_data format:
@@ -121,8 +120,7 @@ def webauthn_registration_start():
         },
         credentials=credentials,
         user_verification="discouraged",
-        authenticator_attachment="cross-platform",
-        challenge=challenge,
+        # authenticator_attachment="cross-platform",
     )
     # credentials list is not updated by register_begin()
 
@@ -130,7 +128,6 @@ def webauthn_registration_start():
     session['registration'] = {
         'email': email,
         'display_name': display_name,
-        'challenge': challenge.rstrip('='),
         'ukey': ukey,
     }
     
@@ -149,16 +146,16 @@ def verify_registration_credentials():
     ukey = register_info['ukey']
     email = register_info['email']
     display_name = register_info['display_name']
-    challenge = register_info['challenge']
     #registration_response = request.form
 
     data = cbor.decode(request.get_data())
+    print(data)
     client_data = ClientData(data["clientDataJSON"])
     att_obj = AttestationObject(data["attestationObject"])
 
-    credential_id_exists = User.query.filter_by(
-        credential_id=webauthn_credential.credential_id
-    ).first()
+
+    # TODO: figure out how to check if we've already saved a credential
+    credential_id_exists = False
 
     if credential_id_exists:
         flash('Credential ID already exists.', 'error')
@@ -168,6 +165,8 @@ def verify_registration_credentials():
 
     # Add credentials to database
     credentials.append(auth_data.credential_data)
+
+    print(credentials)
 
     # Ensure the user's email isn't already in use (TODO: refactor into a function for
     # both registration stages)
@@ -180,11 +179,11 @@ def verify_registration_credentials():
         ukey=ukey,
         email=email,
         display_name=display_name,
-        public_key='',  # not needed anymore?
-        credential_id='',  # also not needed?
-        sign_count=webauthn_credential.sign_count,  # how to obtain?
-        rp_id=RP_ID,
-        icon_url='https://example.com',
+        # public_key='',  # not needed anymore?
+        # credential_id='',  # also not needed?
+        # sign_count=webauthn_credential.sign_count,  # how to obtain?
+        # rp_id=RP_ID,
+        # icon_url='https://example.com',
     )
     db.session.add(user)
     db.session.commit()
@@ -193,8 +192,7 @@ def verify_registration_credentials():
     session.pop('registration', None)
 
     flash(f'Successfully registered with email {email}')
-
-    return cbor.encode({'status': 'OK'})
+    return redirect(url_for('login'))
 
 
 @app.route('/webauthn/login/start', methods=['POST'])

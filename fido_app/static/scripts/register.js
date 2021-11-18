@@ -57,53 +57,85 @@ function submitRegistrationForm() {
  * @param {FormData} formData
  */
 const startBiometricRegistration = async (formData) => {
-  // post the data to the server to generate the PublicKeyCredentialCreateOptions
-  let credentialCreateOptionsFromServer;
   try {
-    credentialCreateOptionsFromServer = await getCredentialCreateOptionsFromServer(formData);
-  } catch (err) {
-    return console.error("Failed to generate credential request options:", err);
-  }
-
-  // convert certain members of the PublicKeyCredentialCreateOptions into
-  // byte arrays as expected by the spec.
-  const publicKeyCredentialCreateOptions = transformCredentialCreateOptions(credentialCreateOptionsFromServer);
-
-  // request the authenticator(s) to create a new credential keypair.
-  let credential;
-  try {
-    credential = await navigator.credentials.create({
-      publicKey: publicKeyCredentialCreateOptions
-    });
-  } catch (err) {
-    return console.error("Error creating credential:", err);
-  }
-
-  // we now have a new credential! We now need to encode the byte arrays
-  // in the credential into strings, for posting to our server.
-  const newAssertionForServer = transformNewAssertionForServer(credential);
-
-  // post the transformed credential data to the server for validation
-  // and storing the public key
-  try {
-    // This request will redirect the user to the profile page
-    await postNewAssertionToServer(newAssertionForServer, formData.get('csrf_token'));
-  } catch (err) {
-    return console.error("Server validation of credential failed:", err);
-  }
-}
-
-/**
- * Get PublicKeyCredentialRequestOptions for this user from the server
- * formData of the registration form
- * @param {FormData} formData 
- */
-const getCredentialCreateOptionsFromServer = async (formData) => {
-  return await fetch_json("/webauthn/registration/start", {
-    method: "POST",
-    body: formData
+    
+  const response = await fetch("/webauthn/registration/start", {
+    method: 'POST',
+    body: formData,
   });
+  
+  if(!response.ok) {
+    alert('Error getting registration data!');
+    return;
+  }
+
+  const credentialCreationData = await response.arrayBuffer();
+  const options = CBOR.decode(credentialCreationData);
+
+  const attestation = await navigator.credentials.create(options);
+
+  const verficationResponse = await fetch('/webauthn/registration/verify-credentials', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/cbor',
+      'X-CSRFToken': CSRF_TOKEN,
+    },
+    redirect: 'follow',
+    body: CBOR.encode({
+      "attestationObject": new Uint8Array(attestation.response.attestationObject),
+      "clientDataJSON": new Uint8Array(attestation.response.clientDataJSON),
+    })
+  });
+  
+  if (!verficationResponse.ok) {
+    alert("Unsuccessful verification");
+  }
+} catch(e) {
+  alert(e);
 }
+
+
+  // fetch("/webauthn/registration/start", {
+  //   method: 'POST',
+  //   body: formData,
+  // }).then(function(response) {
+  //   if(response.ok) return response.arrayBuffer();
+  //   throw new Error('No credential available to authenticate!');
+  // }).then(CBOR.decode).then(function(options) {
+  //   return navigator.credentials.get(options);
+  // }).then(function(assertion) {
+  //   return fetch('/webauthn/registration/verify-credentials', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/cbor',
+  //       'X-CSRFToken': CSRF_TOKEN,
+  //     },
+  //     body: CBOR.encode({
+  //       "credentialId": new Uint8Array(assertion.rawId),
+  //       "authenticatorData": new Uint8Array(assertion.response.authenticatorData),
+  //       "clientDataJSON": new Uint8Array(assertion.response.clientDataJSON),
+  //       "signature": new Uint8Array(assertion.response.signature),
+  //     })
+  //   });
+  // }).then(function(response) {
+  //   var stat = response.ok ? 'successful' : 'unsuccessful';
+  //   alert('Authentication ' + stat + ' More details in server log...');
+  // }, function(reason) {
+  //   alert(reason);
+  // });
+}
+
+// /**
+//  * Get PublicKeyCredentialRequestOptions for this user from the server
+//  * formData of the registration form
+//  * @param {FormData} formData 
+//  */
+// const getCredentialCreateOptionsFromServer = async (formData) => {
+//   return await fetch_json(, {
+//     method: "POST",
+//     body: formData
+//   });
+// }
 
 /**
  * Transforms items in the credentialCreateOptions generated on the server
