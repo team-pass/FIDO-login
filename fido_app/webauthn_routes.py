@@ -153,20 +153,15 @@ def verify_registration_credentials():
     client_data = ClientData(data["clientDataJSON"])
     att_obj = AttestationObject(data["attestationObject"])
 
+    # register_complete() returns att_obj.auth_data, of type AuthenticatorData
+    auth_data = server.register_complete(session["state"], client_data, att_obj)
+    # Get credential ID as string
+    cred_id = str(auth_data.credential_data.credential_id)
 
-    # TODO: figure out how to check if we've already saved a credential
-    credential_id_exists = False
-
-    if credential_id_exists:
+    # Check if credential data, filtered on ID, is already in use
+    if User.query.filter_by(credential_id=cred_id).first():
         flash('Credential ID already exists.', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
-
-    auth_data = server.register_complete(session["state"], client_data, att_obj)
-
-    # Add credentials to database
-    credentials.append(auth_data.credential_data)
-
-    print(credentials)
 
     # Ensure the user's email isn't already in use (TODO: refactor into a function for
     # both registration stages)
@@ -174,15 +169,17 @@ def verify_registration_credentials():
         flash('Email address is already in use', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
 
+    # Add credentials to database
+    # auth_data.credential_data is of type AttestedCredentialData, which has credential_id
     # Create a new user
     user = User(
         ukey=ukey,
         email=email,
         display_name=display_name,
         # public_key='',  # not needed anymore?
-        # credential_id='',  # also not needed?
+        credential_id=cred_id,
         # sign_count=webauthn_credential.sign_count,  # how to obtain?
-        # rp_id=RP_ID,
+        # rp_id=str(auth_data.credential_data.rp_id_hash),
         # icon_url='https://example.com',
     )
     db.session.add(user)
@@ -252,6 +249,7 @@ def webauthn_verify_login():
     credential_id = assertion_response.get('id')
 
     # Ensure a matching user exists
+    # Is credential_id in the same format as the one we save in db?
     user = User.query.filter_by(credential_id=credential_id).first()
     if not user:
         flash('User does not exist')
