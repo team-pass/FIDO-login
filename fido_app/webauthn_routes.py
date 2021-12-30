@@ -14,7 +14,7 @@ from flask import (
 from .models import User
 from flask_login import login_required, login_user
 from . import app, login_manager, db
-from .utils import validate_email, get_display_name
+from .utils import get_json_error_redirect, get_json_success_redirect, validate_email, get_display_name
 
 from fido2.webauthn import PublicKeyCredentialRpEntity
 from fido2.client import ClientData
@@ -43,18 +43,16 @@ def webauthn_registration_start():
     email = request.form['email']
 
     # Verify that email and display name are acceptable
-    # TODO: improve error screen (likely using flashing)
+    # TODO: improve HTTP response to include more detailed info about the error
     if not validate_email(email):
-        flash('Invalid email', 'error')
-        return make_response(jsonify({'redirect': url_for('register')}), 401)
+        return get_json_error_redirect('Invalid email address', url_for('register'), 401)
 
     display_name = get_display_name(email)
 
     # Ensure the user's email isn't already in use (TODO: refactor into a function for
     # both registration stages)
     if User.query.filter_by(email=email).first():
-        flash('Email address is already in use', 'error')
-        return make_response(jsonify({'redirect': url_for('register')}), 401)
+        return get_json_error_redirect('Email address is already in use', url_for('register'), 401)
 
     # We strip the saved challenge of padding, so that we can do a byte
     # comparison on the URL-safe-without-padding challenge we get back
@@ -160,14 +158,12 @@ def verify_registration_credentials():
 
     # Check if credential data, filtered on ID, is already in use
     if User.query.filter_by(credential_id=cred_id).first():
-        flash('Credential ID already exists.', 'error')
-        return make_response(jsonify({'redirect': url_for('register')}), 401)
+        return get_json_error_redirect('Credential ID already exists.', url_for('register'), 401)
 
     # Ensure the user's email isn't already in use (TODO: refactor into a function for
     # both registration stages)
     if User.query.filter_by(email=email).first():
-        flash('Email address is already in use', 'error')
-        return make_response(jsonify({'redirect': url_for('register')}), 401)
+        return get_json_error_redirect('Email address is already in use', url_for('register'), 401)
 
     # Add credentials to database
     # auth_data.credential_data is of type AttestedCredentialData, which has credential_id
@@ -188,8 +184,7 @@ def verify_registration_credentials():
     # Clear registration session info
     session.pop('registration', None)
 
-    flash(f'Successfully registered with email {email}')
-    return redirect(url_for('login'))
+    return get_json_success_redirect(f'Successfully registered with email {email}', url_for('login'), 302)
 
 
 @app.route('/webauthn/login/start', methods=['POST'])

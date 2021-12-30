@@ -1,4 +1,5 @@
 import os, sys, re
+from flask import url_for, flash, make_response, jsonify
 
 ''' Contains useful utility functions for our Flask app '''
 
@@ -36,3 +37,14 @@ def validate_email(email):
 def get_display_name(email):
     '''Returns the first part of an email as a display name'''
     return email[: email.index('@')]
+
+def get_json_error_redirect(error, redirect_url, status_code):
+    '''Returns a JSON response object for a bad request that redirects the user to a given URL'''
+    flash(error, 'error')
+    return make_response(jsonify({'redirect': redirect_url, 'error': error}), status_code)
+
+
+def get_json_success_redirect(message, redirect_url, status_code):
+    '''Returns a JSON response object for a successful request that redirects the user to a given URL'''
+    flash(message)
+    return make_response(jsonify({'redirect': redirect_url, 'message': message}), status_code)
