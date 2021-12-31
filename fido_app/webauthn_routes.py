@@ -1,14 +1,14 @@
 ''' ROUTING IMPLEMENTATION BASED ON DUO LABS'S '''
 
-import os, sys, webauthn, secrets, json
+import os, secrets
 from webauthn import (
     generate_registration_options, 
     verify_registration_response,
     generate_authentication_options, 
     verify_authentication_response,)
 from webauthn.helpers import base64url_to_bytes, bytes_to_base64url, options_to_json
-from webauthn.helpers.structs import RegistrationCredential
-from webauthn.helpers.exceptions import InvalidRegistrationResponse
+from webauthn.helpers.structs import AuthenticationCredential, PublicKeyCredentialDescriptor, RegistrationCredential
+from webauthn.helpers.exceptions import InvalidAuthenticationResponse, InvalidRegistrationResponse
 from flask import (
     request,
     session,
@@ -85,9 +85,7 @@ def verify_registration_credentials():
     # The form data is sent back as JSON-encoded text with a MIME type of 'text/plain' (stored
     # in `request.data`). Even though `application/json` would be a more accurate MIME type,
     # using `text-plain` allows us to call the built-in `RegistrationCredential.parse_raw` method.
-    data = request.data
-    print(data)
-    credential = RegistrationCredential.parse_raw(data)
+    credential = RegistrationCredential.parse_raw(request.data)
 
     # Clear registration session info before doing anything (prevents replays)
     session.pop('registration', None)
@@ -162,70 +160,51 @@ def webauthn_login_start():
         flash('User does not have biometric to sign in with', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
-    # We strip the padding from the challenge stored in the session
-    # for the reasons outlined in the comment in webauthn_begin_activate.
-    challenge = secrets.token_urlsafe(32)
-    session['login'] = {'challenge': challenge.rstrip('=')}
-
-    webauthn_user = webauthn.WebAuthnUser(
-        user_id=user.ukey,
-        username=user.email,
-        display_name=user.display_name,
-        icon_url=user.icon_url,
-        credential_id=user.credential_id,
-        public_key=user.public_key,
-        sign_count=user.sign_count,
-        rp_id=user.rp_id,
+    credential_id_bytes = base64url_to_bytes(user.credential_id)
+    authentication_options = generate_authentication_options(
+        rp_id=RP_ID,
+        allow_credentials=[PublicKeyCredentialDescriptor(id=credential_id_bytes)],
     )
 
-    webauthn_assertion_options = webauthn.WebAuthnAssertionOptions(
-        webauthn_user, challenge
-    )
+    session['login'] = {
+        'challenge': bytes_to_base64url(authentication_options.challenge)
+    }
 
-    return jsonify(webauthn_assertion_options.assertion_dict)
+    return options_to_json(authentication_options)
 
 
 @app.route('/webauthn/login/verify-assertion', methods=['POST'])
 def webauthn_verify_login():
     '''Verify the user's credential attesttion during the login process'''
     challenge = session['login']['challenge']
-    assertion_response = request.form
-    credential_id = assertion_response.get('id')
+
+    # The form data is sent back as JSON-encoded text with a MIME type of 'text/plain' (stored
+    # in `request.data`). Even though `application/json` would be a more accurate MIME type,
+    # using `text-plain` allows us to call the built-in `RegistrationCredential.parse_raw` method.
+    credential = AuthenticationCredential.parse_raw(request.data)
 
     # Ensure a matching user exists
-    user = User.query.filter_by(credential_id=credential_id).first()
+    user = User.query.filter_by(credential_id=credential.id).first()
     if not user:
         flash('User does not exist')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
-    # TODO: determine if this info should be stored at the session level
-    webauthn_user = webauthn.WebAuthnUser(
-        user_id=user.ukey,
-        username=user.email,
-        display_name=user.display_name,
-        icon_url=user.icon_url,
-        credential_id=user.credential_id,
-        public_key=user.public_key,
-        sign_count=user.sign_count,
-        rp_id=user.rp_id,
-    )
-
-    webauthn_assertion_response = webauthn.WebAuthnAssertionResponse(
-        webauthn_user=webauthn_user,
-        assertion_response=assertion_response,
-        challenge=challenge,
-        origin=ORIGIN,
-        uv_required=False,
-    )  # User Verification
-
     try:
-        sign_count = webauthn_assertion_response.verify()
-    except Exception as e:
-        flash(f'Assertion failed. Error: {e}')
+        authenitication_verification = verify_authentication_response(
+            credential=credential,
+            expected_challenge=base64url_to_bytes(challenge),
+            expected_rp_id=RP_ID,
+            expected_origin=ORIGIN,
+            credential_public_key=base64url_to_bytes(user.public_key),
+            credential_current_sign_count=user.sign_count,
+            require_user_verification=True
+        )
+    except InvalidAuthenticationResponse as e:
+        flash(f'Authentication failed. Error: {e}', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
     # Update counter.
-    user.sign_count = sign_count
+    user.sign_count = authenitication_verification.new_sign_count
     db.session.add(user)
     db.session.commit()
     user.add_session(session, commit=True)
