@@ -137,6 +137,8 @@ def verify_registration_credentials():
     )
     db.session.add(user)
     db.session.commit()
+    
+    user.add_session(session, commit=True)
 
     # Clear registration session info
     session.pop('registration', None)
@@ -229,6 +231,7 @@ def webauthn_verify_login():
     user.sign_count = sign_count
     db.session.add(user)
     db.session.commit()
+    user.add_session(session, commit=True)
 
     # Clear login session info
     session.pop('login', None)

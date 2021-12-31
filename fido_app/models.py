@@ -4,6 +4,19 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+class Session(db.Model):
+    '''
+    Model associating users with persistent cookie tokens;
+    'user' property is implicitly created by relationship in User class
+    '''
+
+    token = db.Column(db.String(32), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    interactions = db.relationship('Interaction', lazy=True, backref=db.backref('session', lazy=True))
+
+    def __repr__(self):
+        return f'<User id {self.user_id} has session token {self.token}>'
+
 class User(db.Model, UserMixin):
     '''User model containing either biometric or password credentials'''
 
@@ -29,7 +42,7 @@ class User(db.Model, UserMixin):
     sessions = db.relationship('Session', lazy=True, backref=db.backref('user', lazy=True))
 
     def __repr__(self):
-        return f'<User {self.display_name} {self.username}>'
+        return f'<User {self.email}>'
 
     def set_password(self, password):
         '''Generates a salted & hashed password field for the user given a plaintext password'''
@@ -39,23 +52,23 @@ class User(db.Model, UserMixin):
         '''Checks if the given plaintext password matches the salt and hash for the given user'''
         return check_password_hash(self.password_hash, password)
 
+    def add_session(self, session: Session, commit=False):
+        '''Associates the session with the given id to this particular user'''
 
-class Session(db.Model):
-    '''
-    Model associating users with persistent cookie tokens;
-    'user' property is implicitly created by relationship in User class
-    '''
+        # Don't add a session token that already exists
+        if Session.query.filter_by(token=session["token"]).first():
+            print(f"Session already being tracked, not adding to {self}")
+            return
 
-    id = db.Column(db.Integer, primary_key=True)
-    
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    token = db.Column(db.String(32), unique=True, nullable=False)
-    
-    interactions = db.relationship('Interaction', lazy=True, backref=db.backref('session', lazy=True))
+        new_session = Session(
+            token=session["token"],
+            user_id=self.id,
+        )
 
-    def __repr__(self):
-        return f'<User id {self.user_id} has session token {self.token}>'
-    
+        db.session.add(new_session)
+
+        if commit:
+            db.session.commit()
     
 class Interaction(db.Model):
     '''
@@ -65,10 +78,12 @@ class Interaction(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     
-    session_token = db.Column(db.String(32), db.ForeignKey('session.token'))
-    event = db.Column(db.Enum('focus', 'click', 'submit'), nullable=False, validate_strings=True)
-    page = db.Column(db.Enum('register', 'login'), nullable=False, validate_strings=True)
-    timestamp = db.Column(db.DateTime, unique=False, nullable=False)
+    session_token = db.Column(db.String(36), db.ForeignKey('session.token'))
+    element = db.Column(db.String(32), nullable=False)
+    event = db.Column(db.Enum('focus', 'click', 'submit', validate_strings=True), nullable=False)
+    page = db.Column(db.Enum('/register', '/login', validate_strings=True), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+    group_id = db.Column(db.String(32), nullable=False)
 
     def __repr__(self):
         return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}> on page {self.page}'

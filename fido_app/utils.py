@@ -1,4 +1,4 @@
-import os, sys, re
+import os, re
 
 ''' Contains useful utility functions for our Flask app '''
 

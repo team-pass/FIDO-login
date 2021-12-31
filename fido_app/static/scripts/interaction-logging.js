@@ -7,7 +7,7 @@
  * 
  * Otherwise, this script will listen for `focus` events.
  */
-const interactions = [];
+let interactions = [];
 const timedElements = document.querySelectorAll("[timed-element]");
 const form = document.querySelector(".primary-form");
 timedElements.forEach(attachTimingListeners);
@@ -25,7 +25,7 @@ function attachTimingListeners(element) {
     timedEvents.forEach(event => {
         element.addEventListener(event, () => {
             interactions.push({
-                timestamp: Date.now(),
+                timestampMs: Date.now(),
                 element: element.id,
                 page: window.location.pathname,
                 event,
@@ -53,7 +53,7 @@ function getTimedEventsFor(element) {
  * Submits all interactions that were logged on this page.
  */
 async function submitInteractions() {
-    const url = "/interactions/submit/";
+    const url = "/interactions/submit";
 
     try {
         const response = await fetch(url, {

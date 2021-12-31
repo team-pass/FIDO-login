@@ -4,7 +4,6 @@
 
 // Find form elements in the DOM
 const loginForm = document.getElementById("login-form");
-const email = document.getElementById("email");
 const authMethodToggler = document.getElementById("auth-method-toggler");
 
 /**
@@ -96,13 +95,13 @@ const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) =
   } = credentialRequestOptionsFromServer;
 
   challenge = Uint8Array.from(
-    atob(challenge.replace(/\_/g, "/").replace(/\-/g, "+")), c => c.charCodeAt(0));
+    atob(challenge.replace(/_/g, "/").replace(/-/g, "+")), c => c.charCodeAt(0));
 
   allowCredentials = allowCredentials.map(credentialDescriptor => {
     let {
       id
     } = credentialDescriptor;
-    id = id.replace(/\_/g, "/").replace(/\-/g, "+");
+    id = id.replace(/_/g, "/").replace(/-/g, "+");
     id = Uint8Array.from(atob(id), c => c.charCodeAt(0));
     return Object.assign({}, credentialDescriptor, {
       id
