@@ -1,5 +1,4 @@
 import os, re
-from webauthn.helpers.structs import RegistrationCredential
 
 ''' Contains useful utility functions for our Flask app '''
 
