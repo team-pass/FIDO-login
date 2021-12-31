@@ -1,10 +1,17 @@
 ''' ROUTING IMPLEMENTATION BASED ON DUO LABS'S '''
 
-import os, sys, webauthn, secrets
+import os, sys, webauthn, secrets, json
+from webauthn import (
+    generate_registration_options, 
+    verify_registration_response,
+    generate_authentication_options, 
+    verify_authentication_response,)
+from webauthn.helpers import base64url_to_bytes, bytes_to_base64url, options_to_json
+from webauthn.helpers.structs import RegistrationCredential
+from webauthn.helpers.exceptions import InvalidRegistrationResponse
 from flask import (
     request,
     session,
-    render_template,
     url_for,
     redirect,
     jsonify,
@@ -12,9 +19,9 @@ from flask import (
     flash,
 )
 from .models import User
-from flask_login import login_required, login_user
-from . import app, login_manager, db
-from .utils import validate_email, get_display_name
+from flask_login import login_user
+from . import app, db
+from .utils import get_display_name, validate_email
 
 
 RP_ID = os.getenv('RP_ID')
@@ -39,39 +46,31 @@ def webauthn_registration_start():
         flash('Invalid email', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
 
-    display_name = get_display_name(email)
-
     # Ensure the user's email isn't already in use (TODO: refactor into a function for
     # both registration stages)
     if User.query.filter_by(email=email).first():
         flash('Email address is already in use', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
 
-    # We strip the saved challenge of padding, so that we can do a byte
-    # comparison on the URL-safe-without-padding challenge we get back
-    # from the browser.
-    # We will still pass the padded version down to the browser so that the JS
-    # can decode the challenge into binary without too much trouble.
-    challenge = secrets.token_urlsafe(32)
     ukey = secrets.token_urlsafe(20)
-    session['registration'] = {
-        'email': email,
-        'display_name': display_name,
-        'challenge': challenge.rstrip('='),
-        'ukey': ukey,
-    }
-
-    make_credential_options = webauthn.WebAuthnMakeCredentialOptions(
-        challenge=challenge,
+    display_name = get_display_name(email)
+    
+    registration_options = generate_registration_options(
         rp_name=RP_NAME,
         rp_id=RP_ID,
         user_id=ukey,
-        username=email,
-        display_name=display_name,
-        icon_url='https://example.com',
+        user_name=email,
+        user_display_name=display_name
     )
 
-    return jsonify(make_credential_options.registration_dict)
+    session['registration'] = {
+        'email': email,
+        'challenge': bytes_to_base64url(registration_options.challenge),
+        'ukey': ukey,
+        'display_name': display_name
+    }
+
+    return options_to_json(registration_options)
 
 
 @app.route('/webauthn/registration/verify-credentials', methods=['POST'])
@@ -82,24 +81,26 @@ def verify_registration_credentials():
     ukey = register_info['ukey']
     email = register_info['email']
     display_name = register_info['display_name']
-    registration_response = request.form
 
-    # Craft the response from the
-    webauthn_registration_response = webauthn.WebAuthnRegistrationResponse(
-        rp_id=RP_ID,
-        origin=ORIGIN,
-        registration_response=registration_response,
-        challenge=challenge,
-        trust_anchor_dir=TRUST_ANCHOR_DIR,
-        trusted_attestation_cert_required=True,
-        self_attestation_permitted=True,
-        none_attestation_permitted=True,
-        uv_required=False,  # User Verification
-    )
+    # The form data is sent back as JSON-encoded text with a MIME type of 'text/plain' (stored
+    # in `request.data`). Even though `application/json` would be a more accurate MIME type,
+    # using `text-plain` allows us to call the built-in `RegistrationCredential.parse_raw` method.
+    data = request.data
+    print(data)
+    credential = RegistrationCredential.parse_raw(data)
+
+    # Clear registration session info before doing anything (prevents replays)
+    session.pop('registration', None)
 
     try:
-        webauthn_credential = webauthn_registration_response.verify()
-    except Exception as e:
+       verified_registration = verify_registration_response(
+            credential=credential,
+            expected_challenge=base64url_to_bytes(challenge),
+            expected_rp_id=RP_ID,
+            expected_origin=ORIGIN,
+            require_user_verification=True
+        )
+    except InvalidRegistrationResponse as e:
         flash(f'Registration failed. Error: {e}', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
 
@@ -110,11 +111,8 @@ def verify_registration_credentials():
     # to a different user, the Relying Party SHOULD fail this registration
     # ceremony, or it MAY decide to accept the registration, e.g. while deleting
     # the older registration.
-    credential_id_exists = User.query.filter_by(
-        credential_id=webauthn_credential.credential_id
-    ).first()
-
-    if credential_id_exists:
+    credential_id = bytes_to_base64url(verified_registration.credential_id)
+    if User.query.filter_by(credential_id=credential_id).first():
         flash('Credential ID already exists.', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
 
@@ -126,22 +124,21 @@ def verify_registration_credentials():
 
     # Create a new user
     user = User(
-        ukey=ukey,
         email=email,
+        ukey=ukey,
         display_name=display_name,
-        public_key=webauthn_credential.public_key,
-        credential_id=str(webauthn_credential.credential_id, "utf-8"),
-        sign_count=webauthn_credential.sign_count,
-        rp_id=RP_ID,
-        icon_url='https://example.com',
+        public_key=bytes_to_base64url(verified_registration.credential_public_key),
+        credential_id=credential_id,
+        sign_count=verified_registration.sign_count,
+        authenticator_id=verified_registration.aaguid,
+        attestation_format=verified_registration.fmt,
+        user_verified=verified_registration.user_verified
     )
     db.session.add(user)
     db.session.commit()
-    
-    user.add_session(session, commit=True)
 
-    # Clear registration session info
-    session.pop('registration', None)
+    # TODO: look into a single commit (not sure if possible)
+    user.add_session(session, commit=True)
 
     flash(f'Successfully registered with email {email}')
     return jsonify({'redirect': url_for('login')})
