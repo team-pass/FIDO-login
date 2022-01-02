@@ -156,10 +156,12 @@ const transformNewAssertionForServer = (newAssertion) => {
   return {
     id: newAssertion.id,
     rawId: b64enc(rawId),
+    response: {
+      attestationObject: b64enc(attObj),
+      clientDataJSON: b64enc(clientDataJSON),
+    },
     type: newAssertion.type,
-    attObj: b64enc(attObj),
-    clientData: b64enc(clientDataJSON),
-    registrationClientExtensions: JSON.stringify(registrationClientExtensions)
+    clientExtensionResults: JSON.stringify(registrationClientExtensions)
   };
 }
 
@@ -169,18 +171,13 @@ const transformNewAssertionForServer = (newAssertion) => {
  * @param {string} csrfToken the CSRF token for the request
  */
 const postNewAssertionToServer = async (credentialDataForServer, csrfToken) => {
-  const formData = new FormData();
-  Object.entries(credentialDataForServer).forEach(([key, value]) => {
-    formData.set(key, value);
-  });
-
-  // Add in CSRF token
-  formData.set('csrf_token', csrfToken);
-
-
   return await fetch_json("/webauthn/registration/verify-credentials", {
     method: "POST",
-    body: formData
+    headers: {
+      'Content-Type': 'text/plain',
+      'X-CSRFToken': csrfToken
+    },
+    body: JSON.stringify(credentialDataForServer),
   });
 }
 

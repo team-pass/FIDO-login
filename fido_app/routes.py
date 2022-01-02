@@ -97,7 +97,6 @@ def register():
     new_user = User(
         email=email,
         display_name=get_display_name(email),
-        icon_url='https://example.com',
     )
 
     new_user.set_password(password)

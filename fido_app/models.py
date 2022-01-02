@@ -1,6 +1,7 @@
 ''' Contains all database models for SQLAlchemy '''
 from . import db
 from flask_login import UserMixin
+from webauthn.helpers.structs import AttestationFormat
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -24,19 +25,25 @@ class User(db.Model, UserMixin):
 
     # User info
     email = db.Column(db.String(80), unique=True, nullable=False)
-    display_name = db.Column(db.String(160), unique=False, nullable=False)
-    icon_url = db.Column(db.String(2083))
+    display_name = db.Column(db.String(80), unique=False, nullable=False)
     high_score = db.Column(db.Integer, default=0)
 
     # Password info
     password_hash = db.Column(db.String(128))
 
     # Webauthn info
+    # TODO: move into separate table
     credential_id = db.Column(db.String(250), unique=True, nullable=True)
     ukey = db.Column(db.String(20), unique=True, nullable=True)
     public_key = db.Column(db.String(65), unique=True, nullable=True)
     sign_count = db.Column(db.Integer, default=0)
-    rp_id = db.Column(db.String(253), nullable=True)
+    authenticator_id = db.Column(db.String(16), nullable=True)
+    user_verified = db.Column(db.Boolean(), default=False)
+
+    # Values_callable is needed to allow alembic to generate a correct
+    # migration script
+    attestation_format = db.Column(db.Enum(AttestationFormat, validate_strings=True, values_callable=lambda x: [e.value for e in x]), nullable=True)
+
 
     # Page interaction info
     sessions = db.relationship('Session', lazy=True, backref=db.backref('user', lazy=True))
@@ -69,6 +76,7 @@ class User(db.Model, UserMixin):
 
         if commit:
             db.session.commit()
+    
     
 class Interaction(db.Model):
     '''

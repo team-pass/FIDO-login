@@ -125,6 +125,7 @@ const transformCredentialRequestOptions = (credentialRequestOptionsFromServer) =
 const transformAssertionForServer = (assertion) => {
   const authData = new Uint8Array(assertion.response.authenticatorData);
   const clientDataJSON = new Uint8Array(assertion.response.clientDataJSON);
+  const userHandle = new Uint8Array(assertion.response.userHandle);
   const rawId = new Uint8Array(assertion.rawId);
   const sig = new Uint8Array(assertion.response.signature);
   const assertionClientExtensions = assertion.getClientExtensionResults();
@@ -132,11 +133,14 @@ const transformAssertionForServer = (assertion) => {
   return {
     id: assertion.id,
     rawId: b64enc(rawId),
+    response: {
+      authenticatorData: b64RawEnc(authData),
+      clientDataJSON: b64RawEnc(clientDataJSON),
+      signature: b64RawEnc(sig),
+      userHandle: b64RawEnc(userHandle),
+    },
     type: assertion.type,
-    authData: b64RawEnc(authData),
-    clientData: b64RawEnc(clientDataJSON),
-    signature: hexEncode(sig),
-    assertionClientExtensions: JSON.stringify(assertionClientExtensions)
+    clientExtensionResults: JSON.stringify(assertionClientExtensions)
   };
 };
 
@@ -146,17 +150,13 @@ const transformAssertionForServer = (assertion) => {
  * @param {string} csrfToken the CSRF token for the request
  */
 const postAssertionToServer = async (assertionDataForServer, csrfToken) => {
-  const formData = new FormData();
-  Object.entries(assertionDataForServer).forEach(([key, value]) => {
-    formData.set(key, value);
-  });
-
-  // Inject in the CSRF token
-  formData.set('csrf_token', csrfToken);
-
   return await fetch_json("/webauthn/login/verify-assertion", {
     method: "POST",
-    body: formData
+    headers: {
+      "X-CSRFToken": csrfToken,
+      "Content-Type": "text/plain"
+    },
+    body: JSON.stringify(assertionDataForServer)
   });
 }
 
