@@ -1,10 +1,11 @@
 ''' Contains all database models for SQLAlchemy '''
 from . import db
+import logging
 from flask_login import UserMixin
 from webauthn.helpers.structs import AttestationFormat
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
+logger = logging.getLogger(__name__)
 class Session(db.Model):
     '''
     Model associating users with persistent cookie tokens;
@@ -70,7 +71,7 @@ class User(db.Model, UserMixin):
 
         # Don't add a session token that already exists
         if Session.query.filter_by(token=session["token"]).first():
-            print(f"Session already being tracked, not adding to {self}")
+            logger.info(f"Session already being tracked, not adding to {self}")
             return
 
         new_session = Session(
