@@ -1,10 +1,13 @@
 ''' API ROUTE IMPLEMENTATION '''
 
-from flask import request, session, render_template, url_for, redirect, flash
+from datetime import datetime, timezone
+from uuid import uuid4
+from flask import request, session, render_template, url_for, redirect, flash, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
+import sqlalchemy
 from . import app, login_manager, db
 from .utils import validate_email, get_display_name
-from .models import User
+from .models import User, Interaction
 
 
 @login_manager.user_loader
@@ -15,6 +18,9 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
+def index():
+    return redirect(url_for('login'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -42,6 +48,7 @@ def login():
         return redirect(url_for('login'))
 
     # Log the user into the profile page
+    user.add_session(session, commit=True)
     login_user(user, remember=True)
     return redirect(url_for('profile'))
 
@@ -90,11 +97,13 @@ def register():
     new_user = User(
         email=email,
         display_name=get_display_name(email),
-        icon_url='https://example.com',
     )
+
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
+
+    new_user.add_session(session, commit=True)
 
     # Redirect user to login page
     flash(f'Successfully registered with email {email}')
@@ -120,3 +129,34 @@ def delete_account():
 
     flash(f'Successfully deleted the account for "{email}"', 'message')
     return redirect(url_for('login'))
+
+
+# Interaction log posting
+@app.route('/interactions/submit', methods=['POST'])
+def submit_interactions():
+    data = request.json
+    
+    # Used to tag every interaction submitted in one request
+    request_id = str(uuid4())
+
+    for log in data:
+        try:
+            new_interaction = Interaction(
+                session_token=session['token'],
+                element=log['element'],
+                event=log['event'],
+                page=log['page'],
+                timestamp=datetime.fromtimestamp(log['timestampMs'] / 1000, timezone.utc),
+                group_id=request_id,
+            )
+            db.session.add(new_interaction)
+        except KeyError as e:
+            return jsonify(error=f'An interaction is missing a required key: {e.args[0]}'), 400
+        except (OSError, OverflowError):
+            return jsonify(error=f'An interaction had an invalid UTC timestamp: {log["timestampMs"]}'), 400
+        except sqlalchemy.exc.DBAPIError as e:
+            return jsonify(error=f'Database error: {e}'), 400
+
+    db.session.commit()
+    
+    return jsonify(success=True)

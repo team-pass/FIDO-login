@@ -1,7 +1,7 @@
 '''Flask app configuration'''
 import os
-from .utils import get_database_uri_from
 from dotenv import load_dotenv
+from .utils import get_database_uri_from
 
 load_dotenv()
 
@@ -17,5 +17,4 @@ class Config(object):
     RP_ID = os.environ['RP_ID']
     RP_NAME = os.environ['RP_NAME']
     ORIGIN = os.environ['ORIGIN']
-    TRUST_ANCHOR_DIR = os.environ['TRUST_ANCHOR_DIR']
 

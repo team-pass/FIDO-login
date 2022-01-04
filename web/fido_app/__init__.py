@@ -1,17 +1,30 @@
 ''' BACKEND PROJECT PACKAGE INITIALIZATION '''
 
+import uuid
 from flask import Flask
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from .config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import sys, time
-import os
+from flask.sessions import SecureCookieSessionInterface
+from .config import Config
 
 # Create instance of Flask application
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Create own implementation of SessionInterface and set for app
+class SecureCookieSessionInterfaceWithToken(SecureCookieSessionInterface):
+    def open_session(self, app, request):
+        session = super().open_session(app, request)
+        if 'token' not in session:
+            session['token'] = str(uuid.uuid4())
+        return session
+
+    def save_session(self, app, session, response):
+        super().save_session(app, session, response)
+
+app.session_interface = SecureCookieSessionInterfaceWithToken()
 
 # Setup the database
 db = SQLAlchemy(app)

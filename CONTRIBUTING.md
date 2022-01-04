@@ -20,19 +20,20 @@ If you haven't already, take a brief look at [how git works](https://guides.gith
 3. Install the necessary Python packages using
 
 ```bash
+cd web
 pip install -r requirements.txt
 ```
 
-7. Create the database with the correct tables
+4. Create the database with the correct tables
 
 ```bash
 python setup-db.py
 ```
 
-8. Run the server using 
+1. Run the server using 
 
 ```bash
-python run.py
+python wsgi.py
 ```
 
 ## 🧪 Running Tests
@@ -50,6 +51,9 @@ To run a production version of the web app, you can simply run
 
 ```bash
 docker-compose up
+
+# or if you have a .env file:
+docker-compose --env-file .env up
 ```
 
 in the root of the repository. The [`docker-compose.yml`](./docker-compose.yml) file defines how to setup the Flask and MariaDB instance. 

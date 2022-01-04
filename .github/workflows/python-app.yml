@@ -30,6 +30,5 @@ jobs:
           RP_ID: ${{secrets.RP_ID}}
           RP_NAME: ${{secrets.RP_NAME}}
           ORIGIN: ${{secrets.ORIGIN}}
-          TRUST_ANCHOR_DIR: ${{secrets.TRUST_ANCHOR_DIR}}
         run: |
           pytest tests/

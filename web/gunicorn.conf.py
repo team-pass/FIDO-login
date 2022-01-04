@@ -1,5 +1,5 @@
 # Gunicorn Config File
-wsgi_app = 'app:app'
+wsgi_app = 'wsgi:app'
 bind = '0.0.0.0:8080'
 
 # SSL Configs

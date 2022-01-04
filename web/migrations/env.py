@@ -47,7 +47,11 @@ def run_migrations_offline():
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True
+        url=url,
+        target_metadata=target_metadata,
+        render_as_batch=True,   
+        literal_binds=True,
+        compare_type=True, # https://eshlox.net/2017/08/06/alembic-migration-for-string-length-change/
     )
 
     with context.begin_transaction():
@@ -83,6 +87,8 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
+            render_as_batch=True,            
+            compare_type=True, # https://eshlox.net/2017/08/06/alembic-migration-for-string-length-change/
             **current_app.extensions['migrate'].configure_args
         )
 
