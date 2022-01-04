@@ -62,6 +62,9 @@ class User(db.Model, UserMixin):
         '''Checks if the given plaintext password matches the salt and hash for the given user'''
         return check_password_hash(self.password_hash, password)
 
+    def has_password(self):
+        return self.password_hash is not None
+
     def add_session(self, session: Session, commit=False):
         '''Associates the session with the given id to this particular user'''
 
