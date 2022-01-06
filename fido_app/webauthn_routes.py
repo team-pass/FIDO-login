@@ -33,7 +33,7 @@ ORIGIN = os.getenv('ORIGIN')
 TRUST_ANCHOR_DIR = os.getenv('TRUST_ANCHOR_DIR')
 
 
-@app.route('/webauthn/registration/start', methods=['POST'])
+@app.route('/webauthn/registration/start', methods=['GET', 'POST'])
 def webauthn_registration_start():
     """Starts the webauthn registration process by sending the user a random challenge"""
 

@@ -8,15 +8,19 @@ cybersecurity.
 
 {% block cardBody %}
 <!--Registration Form-->
-<form id="registration-form" class="primary-form" method="POST" timed-element timed-events="submit">
+<form id="registration-form" class="primary-form" method="POST" action="{% if current_user.is_authenticated %}/add-password{% else %}/register{% endif %}" timed-element timed-events="submit">
 
   <!-- CSRF Protection -->
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-  <div class="form-group">
-    <label for="email">Email address</label>
-    <input name="email" type="email" class="form-control" id="email" autocomplete="email" required timed-element />
-  </div>
+  {% if current_user.is_authenticated %}
+    <input type="hidden" name="email" value="{{ current_user.email }}" />
+  {% else %}
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <input name="email" type="email" class="form-control" id="email" autocomplete="email" required timed-element />
+    </div>
+  {% endif %}
 
   <!-- Password inputs for registration -->
   <section id="password-inputs" class="collapse show">
@@ -31,7 +35,11 @@ cybersecurity.
   </section>
 
   {% import 'components.html' as components %}
-  {{ components.form_footer('Already have an account? Log in', url_for('login')) }}
+  {% if current_user.is_authenticated %}
+    {{ components.form_footer('Back to profile', url_for('profile'), false) }}
+  {% else %}
+    {{ components.form_footer('Already have an account? Log in', url_for('login'), true) }}
+  {% endif %}
 </form>
 {% endblock %}
 

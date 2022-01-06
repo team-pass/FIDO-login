@@ -13,10 +13,10 @@
 </button>
 {%- endmacro %}
 
-{% macro form_footer(action_description, action_location) -%}
+{% macro form_footer(action_description, action_location, include_toggler) -%}
 <section class="d-flex justify-content-between align-items-center">
     <button id="submit" type="submit" class="btn btn-primary">Submit</button>
-    {{ auth_toggler() }}
+    {% if include_toggler %}{{ auth_toggler() }}{% endif %}
 </section>
 <small class="form-text text-muted">{{ action_description}}
     <a href="{{ action_location }}">here</a>

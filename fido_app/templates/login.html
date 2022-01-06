@@ -27,7 +27,7 @@ cybersecurity.
   </section>
 
   {% import 'components.html' as components %}
-  {{ components.form_footer("Don't have an account? Register", url_for('register')) }}
+  {{ components.form_footer("Don't have an account? Register", url_for('register'), true) }}
 </form>
 
 {% endblock %}
