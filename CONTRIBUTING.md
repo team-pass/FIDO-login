@@ -56,7 +56,15 @@ docker-compose up
 docker-compose --env-file .env up
 ```
 
-in the root of the repository. The [`docker-compose.yml`](./docker-compose.yml) file defines how to setup the Flask and MariaDB instance. 
+in the root of the repository.
+
+The first time you run this command on a machine, it will fail because you have not created the **external volumes** needed to persist DB and TLS certificate data. Follow the instructions in `docker-compose` error messages to fix this error (i.e., by calling `docker volume create`).
+
+Finally, you also have to setup the DB according to our schema. You can do this by running the one-off command while the `web` container is running:
+
+```bash
+docker-compose exec web python setup-db.py
+```
 
 ### ✈ DB Migrations
 
