@@ -1,10 +1,10 @@
-name: remote ssh command
+name: migrate the DB
 
-on: release
+on: workflow_dispatch
 
 jobs:
   deploy:
-    name: Deploy over SSH
+    name: Connect over SSH
     runs-on: ubuntu-latest
     steps:
     - name: ssh into remote server
@@ -14,11 +14,6 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
-
-        # https://grimoire.ca/git/stop-using-git-pull-to-deploy/
-        # TODO: figure out if it's better to inject env variables here
         script: |
           cd ~/FIDO-login
-          git fetch --all
-          git checkout --force ${{ github.sha }}
-          docker-compose up -d --no-deps --force-recreate --build
+          docker-compose exec web python setup-db.py
