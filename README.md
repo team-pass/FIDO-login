@@ -23,6 +23,9 @@ A FIDO-compliant web app that has biometric authentication capabilities. Built u
   - [`static/`](/web/fido_app/static): Assets for our webpages, such as images, JS scripts, and CSS stylesheets
   - [`app.py`](/web/app.py): The driving code for the server (just call `python app.py`)
 - [`docker-compose.yml`](docker-compose.yml): Orchestration for the flask app + MariaDB server
+- [`Caddyfile`](Caddyfile): Reverse HTTPS proxy (see [Caddy's webpage](https://caddyserver.com/))
+- [`fido_app.service`](fido_app.service): Systemd service for starting the web server using `docker-compose` on system startup (used on production servers)
+- [`.github/workflows`](.github/workflows): GitHub Actions workflow definitions
 
 ## 🚀 Quick Start
 

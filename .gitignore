@@ -16,6 +16,3 @@
 # Build/test artifacts
 **/*.pyc
 .cache
-
-# Any private keys
-*.pem

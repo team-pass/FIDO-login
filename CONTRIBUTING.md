@@ -14,23 +14,24 @@ git clone https://github.com/team-pass/FIDO-login.git
 
 If you haven't already, take a brief look at [how git works](https://guides.github.com/introduction/git-handbook/)
 
-1. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in `./.env`. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/) for our production environment and [SQLite](https://www.sqlite.org/index.html) for development). You can see what our `.env` looks like in the [`.env.example`](.env.example) file.
+4. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in `./.env`. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/) for our production environment and [SQLite](https://www.sqlite.org/index.html) for development). You can see what our `.env` looks like in the [`.env.example`](.env.example) file.
 
-2. Setup and activate a Python virtual environment (see the [official Python docs on venv](https://docs.python.org/3/tutorial/venv.html)).
-3. Install the necessary Python packages using
+5. Setup and activate a Python virtual environment (see the [official Python docs on venv](https://docs.python.org/3/tutorial/venv.html)).
+   
+6. Install the necessary Python packages using
 
 ```bash
 cd web
 pip install -r requirements.txt
 ```
 
-4. Create the database with the correct tables
+7. Create the database with the correct tables
 
 ```bash
 python setup-db.py
 ```
 
-1. Run the server using 
+8. Run the server using 
 
 ```bash
 python wsgi.py
@@ -51,29 +52,16 @@ To run a production version of the web app, you can simply run
 
 ```bash
 docker-compose up
-
-# or if you have a .env file:
-docker-compose --env-file .env up
 ```
 
 in the root of the repository.
 
 The first time you run this command on a machine, it will fail because you have not created the **external volumes** needed to persist DB and TLS certificate data. Follow the instructions in `docker-compose` error messages to fix this error (i.e., by calling `docker volume create`).
 
-Finally, you also have to setup the DB according to our schema. You can do this by running the one-off command while the `web` container is running:
+Finally, you have to setup the DB according to our schema. You can do this by running the one-off command while the `web` container is running:
 
 ```bash
 docker-compose exec web python setup-db.py
-```
-
-### ✈ DB Migrations
-
-To setup the DB on the Dockerized stack, you can run the following commands after starting the services w/ `docker-compose up`:
-
-
-```bash
-docker-compose exec web bash # Opens up a shell in the active `web` service
-python app/setup-db.py       # Sets up the DB
 ```
 
 ## 📝 Adding a New Feature
