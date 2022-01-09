@@ -26,9 +26,13 @@ jobs:
       - name: Test with pytest
         env:
           FLASK_SECRET_KEY: ${{secrets.FLASK_SECRET_KEY}}
-          DATABASE_URL: ${{secrets.DATABASE_URL}}
           RP_ID: ${{secrets.RP_ID}}
           RP_NAME: ${{secrets.RP_NAME}}
           ORIGIN: ${{secrets.ORIGIN}}
+          DB_PROTOCOL: ${{secrets.DB_PROTOCOL}}
+          DB_USERNAME: ${{secrets.DB_USERNAME}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          DB_HOST: ${{secrets.DB_HOST}}
+          DB_NAME: ${{secrets.DB_NAME}}
         run: |
           pytest web/tests/
