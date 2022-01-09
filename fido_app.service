@@ -1,0 +1,20 @@
+# Sample file for systemd
+# Add to your server using
+# sudo cp fido_app.service /etc/systemd/system
+# systemctl enable fido_app
+# systemctl start fido_app
+
+[Unit]
+Description=FIDO App service with docker compose
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/home/prod/FIDO-login
+ExecStart=/usr/local/bin/docker-compose up -d --remove-orphans
+ExecStop=/usr/local/bin/docker-compose down
+
+[Install]
+WantedBy=multi-user.target
