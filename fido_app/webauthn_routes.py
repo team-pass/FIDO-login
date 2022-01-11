@@ -73,6 +73,34 @@ def webauthn_registration_start():
     return options_to_json(registration_options)
 
 
+@app.route('/webauthn/registration/add-start', methods=['GET', 'POST'])
+def webauthn_registration_add_start():
+    """Starts the webauthn registration process by sending the user a random challenge"""
+
+    # MakeCredentialOptions
+    email = request.form['email']
+
+    ukey = secrets.token_urlsafe(20)
+    display_name = get_display_name(email)
+    
+    registration_options = generate_registration_options(
+        rp_name=RP_NAME,
+        rp_id=RP_ID,
+        user_id=ukey,
+        user_name=email,
+        user_display_name=display_name
+    )
+
+    session['registration'] = {
+        'email': email,
+        'challenge': bytes_to_base64url(registration_options.challenge),
+        'ukey': ukey,
+        'display_name': display_name
+    }
+
+    return options_to_json(registration_options)
+
+
 @app.route('/webauthn/registration/verify-credentials', methods=['POST'])
 def verify_registration_credentials():
     '''Verify the credential attestation generated during the registration process'''
