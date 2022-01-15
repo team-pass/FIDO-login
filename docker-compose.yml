@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  web:
+    build: ./web
+    restart: unless-stopped
+    expose: 
+      - "8080"
+    environment: 
+      DB_PROTOCOL: mariadb
+      DB_HOST: db:3306
+      DB_USERNAME: $DB_USERNAME
+      DB_PASSWORD: $DB_PASSWORD
+      DB_NAME: $DB_NAME
+      FLASK_SECRET_KEY: $FLASK_SECRET_KEY
+      RP_ID: $RP_ID
+      RP_NAME: $RP_NAME
+      ORIGIN: $ORIGIN
+  
+  db:
+    image: mariadb
+    restart: unless-stopped
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_USER: $DB_USERNAME
+      MYSQL_PASSWORD: $DB_PASSWORD
+    volumes:
+      - db_data:/var/lib/mysql
+
+  caddy:
+    image: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: $RP_ID
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+# External volumes are persistent and must be created
+# using `docker volume create [project-name]_caddy_data`
+volumes:
+  caddy_data:
+    external: true
+  caddy_config:
+  db_data:
+    external: true

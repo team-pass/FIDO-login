@@ -1,0 +1,19 @@
+name: migrate the DB
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    name: Connect over SSH
+    runs-on: ubuntu-latest
+    steps:
+    - name: ssh into remote server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
+        script: |
+          cd ~/FIDO-login
+          docker-compose exec web python setup-db.py
