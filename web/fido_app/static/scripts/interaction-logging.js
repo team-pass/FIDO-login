@@ -10,6 +10,9 @@
 let interactions = [];
 const timedElements = document.querySelectorAll("[timed-element]");
 const form = document.querySelector(".primary-form");
+
+// Attach listeners and add page-load event
+addInteraction('document', 'load');
 timedElements.forEach(attachTimingListeners);
 form.addEventListener("submit", submitInteractions);
 
@@ -23,14 +26,22 @@ function attachTimingListeners(element) {
     const timedEvents = getTimedEventsFor(element);
 
     timedEvents.forEach(event => {
-        element.addEventListener(event, () => {
-            interactions.push({
-                timestampMs: Date.now(),
-                element: element.id,
-                page: window.location.pathname,
-                event,
-            });
-        });
+        element.addEventListener(event, () => addInteraction(element.id, event));
+    });
+}
+
+/**
+ * Logs a new interaction, which won't be sent to the server until the primary form
+ * is submitted
+ * @param {String} elementId the id of the element the user interacted with 
+ * @param {String} event the type of interaction (e.g., `focus` or `click` event)
+ */
+function addInteraction(elementId, event) {
+    interactions.push({
+        timestampMs: Date.now(),
+        element: elementId,
+        page: window.location.pathname,
+        event,
     });
 }
 
