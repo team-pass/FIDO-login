@@ -1,19 +1,23 @@
 ''' Contains all database models for SQLAlchemy '''
 from . import db
+import logging
 from flask_login import UserMixin
 from webauthn.helpers.structs import AttestationFormat
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
+logger = logging.getLogger(__name__)
 class Session(db.Model):
     '''
     Model associating users with persistent cookie tokens;
     'user' property is implicitly created by relationship in User class
     '''
 
-    token = db.Column(db.String(32), primary_key=True)
+    token = db.Column(db.String(40), primary_key=True)
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    interactions = db.relationship('Interaction', lazy=True, backref=db.backref('session', lazy=True))
+    user = db.relationship('User', back_populates='sessions')
+
+    interactions = db.relationship('Interaction')
 
     def __repr__(self):
         return f'<User id {self.user_id} has session token {self.token}>'
@@ -33,11 +37,11 @@ class User(db.Model, UserMixin):
 
     # Webauthn info
     # TODO: move into separate table
-    credential_id = db.Column(db.String(250), unique=True, nullable=True)
-    ukey = db.Column(db.String(20), unique=True, nullable=True)
+    credential_id = db.Column(db.String(400), unique=True, nullable=True)
+    ukey = db.Column(db.String(32), unique=True, nullable=True)
     public_key = db.Column(db.String(65), unique=True, nullable=True)
     sign_count = db.Column(db.Integer, default=0)
-    authenticator_id = db.Column(db.String(16), nullable=True)
+    authenticator_id = db.Column(db.String(40), nullable=True)
     user_verified = db.Column(db.Boolean(), default=False)
 
     # Values_callable is needed to allow alembic to generate a correct
@@ -46,7 +50,7 @@ class User(db.Model, UserMixin):
 
 
     # Page interaction info
-    sessions = db.relationship('Session', lazy=True, backref=db.backref('user', lazy=True))
+    sessions = db.relationship('Session', back_populates='user')
 
     def __repr__(self):
         return f'<User {self.email}>'
@@ -59,12 +63,15 @@ class User(db.Model, UserMixin):
         '''Checks if the given plaintext password matches the salt and hash for the given user'''
         return check_password_hash(self.password_hash, password)
 
+    def has_password(self):
+        return self.password_hash is not None
+
     def add_session(self, session: Session, commit=False):
         '''Associates the session with the given id to this particular user'''
 
         # Don't add a session token that already exists
         if Session.query.filter_by(token=session["token"]).first():
-            print(f"Session already being tracked, not adding to {self}")
+            logger.info(f"Session already being tracked, not adding to {self}")
             return
 
         new_session = Session(
@@ -86,12 +93,12 @@ class Interaction(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     
-    session_token = db.Column(db.String(36), db.ForeignKey('session.token'))
+    session_token = db.Column(db.String(40), db.ForeignKey('session.token'))
     element = db.Column(db.String(32), nullable=False)
     event = db.Column(db.Enum('focus', 'click', 'submit', validate_strings=True), nullable=False)
     page = db.Column(db.Enum('/register', '/login', validate_strings=True), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
-    group_id = db.Column(db.String(32), nullable=False)
+    group_id = db.Column(db.String(40), nullable=False)
 
     def __repr__(self):
         return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}> on page {self.page}'

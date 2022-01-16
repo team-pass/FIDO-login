@@ -24,7 +24,7 @@ def upgrade():
     op.execute(role.update().values(group_id=''))
     
     with op.batch_alter_table('interaction') as batch_op: 
-        batch_op.alter_column('group_id', nullable=False)
+        batch_op.alter_column('group_id', existing_type=sa.String(length=32), nullable=False)
     # ### end Alembic commands ###
 
 

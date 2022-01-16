@@ -42,6 +42,10 @@ def login():
     # Check that a user has a matching email/password combo
     user = User.query.filter_by(email=email).first()
 
+    if user and not user.has_password():
+        flash('You have not configured a password for your account', 'error')
+        return redirect(url_for('login'))
+
     # If the user's password is incorrect, let them know
     if not user or not user.check_password(password):
         flash('Email or passsword is incorrect', 'error')

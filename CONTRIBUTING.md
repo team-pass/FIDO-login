@@ -14,12 +14,14 @@ git clone https://github.com/team-pass/FIDO-login.git
 
 If you haven't already, take a brief look at [how git works](https://guides.github.com/introduction/git-handbook/)
 
-4. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in the the root of the project. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/) for our production environment and [SQLite](https://www.sqlite.org/index.html) for development). You can see what our `.env` looks like in the [`.env.example`](./.env.example) file.
+4. If you're on Team PASS, request access for the `.env` file, which contains server environment variables such as the database username/password. You should place it in `./.env`. If you're not on the team, you can create your own `.env` file and host the database yourself (we use [MariaDB](https://mariadb.org/) for our production environment and [SQLite](https://www.sqlite.org/index.html) for development). You can see what our `.env` looks like in the [`.env.example`](.env.example) file.
 
 5. Setup and activate a Python virtual environment (see the [official Python docs on venv](https://docs.python.org/3/tutorial/venv.html)).
+   
 6. Install the necessary Python packages using
 
 ```bash
+cd web
 pip install -r requirements.txt
 ```
 
@@ -32,17 +34,35 @@ python setup-db.py
 8. Run the server using 
 
 ```bash
-python run.py
+python wsgi.py
 ```
 
 ## 🧪 Running Tests
 We use `pytest` to verify the behavior of our application. You can invoke our test suite by running:
 
 ```bash
-pytest tests/
+pytest web/tests/
 ```
 
 As you add new features to the application, please add unit tests to ensure that your changes work as intended!
+
+## 📦 Running a Production Version
+
+To run a production version of the web app, you can simply run
+
+```bash
+docker-compose up
+```
+
+in the root of the repository.
+
+The first time you run this command on a machine, it will fail because you have not created the **external volumes** needed to persist DB and TLS certificate data. Follow the instructions in `docker-compose` error messages to fix this error (i.e., by calling `docker volume create`).
+
+Finally, you have to setup the DB according to our schema. You can do this by running the one-off command while the `web` container is running:
+
+```bash
+docker-compose exec web python setup-db.py
+```
 
 ## 📝 Adding a New Feature
 
@@ -81,7 +101,7 @@ git commit -m "Write a descriptive commit message that describes all of the chan
 6. After you've commited all your changes, it's time to send the code up to GitHub so everyone on Team PASS has access. To do that, run
 
 ```bash
-git push # Sends all of your commited changes to the remote (github.com)
+git push # Sends all of your committed changes to the remote (github.com)
 ```
 
 This command might throw an error because the branch isn't currently tracked by github. In that case, it will show you a command to run, which looks something like this:

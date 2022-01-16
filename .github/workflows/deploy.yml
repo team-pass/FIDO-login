@@ -1,0 +1,24 @@
+name: remote ssh command
+
+on: release
+
+jobs:
+  deploy:
+    name: Deploy over SSH
+    runs-on: ubuntu-latest
+    steps:
+    - name: ssh into remote server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
+
+        # https://grimoire.ca/git/stop-using-git-pull-to-deploy/
+        # TODO: figure out if it's better to inject env variables here
+        script: |
+          cd ~/FIDO-login
+          git fetch --all
+          git checkout --force ${{ github.sha }}
+          docker-compose up -d --no-deps --force-recreate --build

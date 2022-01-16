@@ -28,11 +28,6 @@ RP_ID = os.getenv('RP_ID')
 RP_NAME = os.getenv('RP_NAME')
 ORIGIN = os.getenv('ORIGIN')
 
-# Trust anchors (trusted attestation roots) should be
-# placed in TRUST_ANCHOR_DIR.
-TRUST_ANCHOR_DIR = os.getenv('TRUST_ANCHOR_DIR')
-
-
 @app.route('/webauthn/registration/start', methods=['POST'])
 def webauthn_registration_start():
     """Starts the webauthn registration process by sending the user a random challenge"""
