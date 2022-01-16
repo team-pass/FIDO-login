@@ -24,8 +24,8 @@ cybersecurity.
 <canvas width="400" height="400" id="snake-game" class="card"></canvas>
 
 <footer>
-  <a class="btn btn-outline-primary btn-block profile-action {% if current_user.password_hash %}disabled{% endif %}" href="/add-password">Add Password</a>
-  <a class="btn btn-outline-primary btn-block profile-action {% if current_user.credential_id %}disabled{% endif %}" href="/webauthn/registration/add-start">Add Biometric</a>
+  <a id="add-credential" class="btn btn-outline-primary btn-block profile-action {% if current_user.password_hash %}disabled{% endif %}" href="/add-password">Add Password</a>
+  <a id="add-biometric" class="btn btn-outline-primary btn-block profile-action {% if current_user.credential_id %}disabled{% endif %}" href="/webauthn/registration/add-start">Add Biometric</a>
   <form action="{{ url_for('delete_account') }}" method="POST"
     onsubmit="return confirm('Do you really want to delete your account?');">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
