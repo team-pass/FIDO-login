@@ -69,11 +69,12 @@ def webauthn_registration_start():
 
 
 @app.route('/webauthn/registration/add-start', methods=['POST'])
+@login_required
 def webauthn_registration_add_start():
     """Starts the webauthn registration process by sending the user a random challenge"""
 
     # MakeCredentialOptions
-    email = request.form['email']
+    email = session['email']
 
     ukey = secrets.token_urlsafe(20)
     display_name = get_display_name(email)

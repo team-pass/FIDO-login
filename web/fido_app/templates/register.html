@@ -13,9 +13,7 @@ cybersecurity.
   <!-- CSRF Protection -->
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-  {% if current_user.is_authenticated %}
-    <input type="hidden" name="email" value="{{ current_user.email }}" />
-  {% else %}
+  {% if not current_user.is_authenticated %}
     <div class="form-group">
       <label for="email">Email address</label>
       <input name="email" type="email" class="form-control" id="email" autocomplete="email" required timed-element />
