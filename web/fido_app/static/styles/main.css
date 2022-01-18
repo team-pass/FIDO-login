@@ -1,6 +1,7 @@
 /* Custom CSS Variables */
 :root {
-  --spacing: 2rem;
+  --spacing: 1.5rem; /* Fallback value if clamp isn't supported */
+  --spacing: clamp(1rem, 3vw, 2rem);
   --std-timing: 200ms ease-in-out;
   --fully-rounded-br: 1000px;
   /* Arbitrarily large border radius value */

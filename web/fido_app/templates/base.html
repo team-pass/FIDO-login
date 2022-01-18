@@ -21,17 +21,19 @@
 
   <body>
     <main class="container">
-      <img src="{{ url_for('static', filename='images/team-logo.svg') }}" alt="Team PASS Logo" class="team-logo" />
       <section class="row justify-content-center">
-        <div class="col-6 card">
-          <div class="card-body">
-            <h3 class="card-title">{% block cardTitle %}{% endblock %}</h3>
+        <div class="col-11 col-lg-6">
+          <img src="{{ url_for('static', filename='images/team-logo.svg') }}" alt="Team PASS Logo" class="img-fluid team-logo" />
+          <div class="card">
+            <div class="card-body">
+              <h3 class="card-title">{% block cardTitle %}{% endblock %}</h3>
 
-            {% import 'components.html' as components %}
-            {{ components.message_flasher() }}
+              {% import 'components.html' as components %}
+              {{ components.message_flasher() }}
 
-            {% block cardBody %}{% endblock %}
+              {% block cardBody %}{% endblock %}
 
+            </div>
           </div>
         </div>
       </section>
