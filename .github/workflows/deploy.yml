@@ -1,6 +1,9 @@
 name: remote ssh command
 
-on: release
+on: 
+  push:
+    branches:
+      - master
 
 jobs:
   deploy:
