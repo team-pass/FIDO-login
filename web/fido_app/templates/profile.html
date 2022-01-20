@@ -25,15 +25,20 @@ cybersecurity.
 
 <footer>
   {% if current_user.password_hash %}
-    <a id="add-credential" class="btn btn-outline-primary btn-block profile-action disabled" href="/add-password">Password Already Registered</a>
-    <form action="/webauthn/registration/add-start" method="POST">
+    <a id="add-password" class="btn btn-outline-primary btn-block profile-action disabled" href="/add-password">Password Already Registered</a>
+  {% else %}
+    <a id="add-password" class="btn btn-outline-primary btn-block profile-action" href="/add-password">Add Password</a>
+  {% endif %}
+
+  {% if current_user.credential_id %}
+    <a id="add-biometric" class="btn btn-outline-primary btn-block profile-action disabled">Biometric Already Registered</a>
+  {% else %}
+    <form id="add-biometric" action="/webauthn/registration/start" method="POST">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <button type="submit" class="btn btn-outline-primary btn-block profile-action">Add Biometric</button>
     </form>
-  {% else %}
-    <a id="add-credential" class="btn btn-outline-primary btn-block profile-action {% if current_user.password_hash %}disabled{% endif %}" href="/add-password">Add Password</a>
-    <a id="add-biometric" class="btn btn-outline-primary btn-block profile-action disabled">Biometric Already Registered</a>
   {% endif %}
+    
   <form action="{{ url_for('delete_account') }}" method="POST"
     onsubmit="return confirm('Do you really want to delete your account?');">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -45,4 +50,6 @@ cybersecurity.
 
 {% block customJS %}
 <script src="{{ url_for('static', filename='scripts/snake-game.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/lib/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/register.js') }}"></script>
 {% endblock %}

@@ -73,7 +73,7 @@ def register():
         return render_template('register.html')
 
     # Otherwise, handle the POST request to register a new user account
-    email = session['email']
+    email = request.form.get('email')
     password = request.form.get('password')
     confirm_password = request.form.get('confirm-password')
 
@@ -130,7 +130,7 @@ def add_password():
         return render_template('register.html')
 
     # Otherwise, handle the POST request to add a password to the existing user account
-    email = request.form.get('email')
+    email = current_user.email
     password = request.form.get('password')
     confirm_password = request.form.get('confirm-password')
 
