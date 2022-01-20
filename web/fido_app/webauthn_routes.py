@@ -116,19 +116,15 @@ def verify_registration_credentials():
 
     # If this is an existing user, update the db entry for that user
     if current_user.is_authenticated:
-        existing_user = User.query.filter_by(email=email).first()
+        current_user.ukey = ukey
+        current_user.public_key = bytes_to_base64url(verified_registration.credential_public_key)
+        current_user.credential_id = credential_id
+        current_user.sign_count = verified_registration.sign_count
+        current_user.authenticator_id = verified_registration.aaguid
+        current_uses.attestation_format = verified_registration.fmt
+        current_user.user_verified = verified_registration.user_verified
 
-        # This condition should never fail, but just in case...
-        if existing_user:
-            existing_user.ukey = ukey
-            existing_user.public_key = bytes_to_base64url(verified_registration.credential_public_key)
-            existing_user.credential_id = credential_id
-            existing_user.sign_count = verified_registration.sign_count
-            existing_user.authenticator_id = verified_registration.aaguid
-            existing_uses.attestation_format = verified_registration.fmt
-            existing_user.user_verified = verified_registration.user_verified
-
-            db.session.commit()
+        db.session.commit()
 
     # Create a new User entry in db if this is a first-time user
     else:
