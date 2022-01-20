@@ -153,7 +153,7 @@ def verify_registration_credentials():
             existing_user.credential_id = credential_id
             existing_user.sign_count = verified_registration.sign_count
             existing_user.authenticator_id = verified_registration.aaguid
-            existing_uses.attestation_format = verified_registration.fmt
+            existing_user.attestation_format = verified_registration.fmt
             existing_user.user_verified = verified_registration.user_verified
 
             db.session.commit()
