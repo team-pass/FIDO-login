@@ -68,7 +68,6 @@ def webauthn_registration_start():
         'challenge': bytes_to_base64url(registration_options.challenge),
         'ukey': ukey,
         'display_name': display_name,
-        'is_new_user': not current_user.is_authenticated,
     }
 
     return options_to_json(registration_options)
@@ -82,7 +81,6 @@ def verify_registration_credentials():
     ukey = register_info['ukey']
     email = register_info['email']
     display_name = register_info['display_name']
-    is_new_user = register_info['is_new_user']
 
     # The form data is sent back as JSON-encoded text with a MIME type of 'text/plain' (stored
     # in `request.data`). Even though `application/json` would be a more accurate MIME type,
@@ -116,8 +114,24 @@ def verify_registration_credentials():
         flash('Credential ID already exists.', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
 
+    # If this is an existing user, update the db entry for that user
+    if current_user.is_authenticated:
+        existing_user = User.query.filter_by(email=email).first()
+
+        # This condition should never fail, but just in case...
+        if existing_user:
+            existing_user.ukey = ukey
+            existing_user.public_key = bytes_to_base64url(verified_registration.credential_public_key)
+            existing_user.credential_id = credential_id
+            existing_user.sign_count = verified_registration.sign_count
+            existing_user.authenticator_id = verified_registration.aaguid
+            existing_uses.attestation_format = verified_registration.fmt
+            existing_user.user_verified = verified_registration.user_verified
+
+            db.session.commit()
+
     # Create a new User entry in db if this is a first-time user
-    if is_new_user:
+    else:
         # Ensure the user's email isn't already in use
         # (TODO: refactor into a function for both registration stages)
         if User.query.filter_by(email=email).first():
@@ -141,22 +155,6 @@ def verify_registration_credentials():
 
         # TODO: look into a single commit (not sure if possible)
         user.add_session(session, commit=True)
-        
-    # If this is an existing user, update the db entry for that user
-    else:
-        existing_user = User.query.filter_by(email=email).first()
-
-        # This condition should never fail, but just in case...
-        if existing_user:
-            existing_user.ukey = ukey
-            existing_user.public_key = bytes_to_base64url(verified_registration.credential_public_key)
-            existing_user.credential_id = credential_id
-            existing_user.sign_count = verified_registration.sign_count
-            existing_user.authenticator_id = verified_registration.aaguid
-            existing_uses.attestation_format = verified_registration.fmt
-            existing_user.user_verified = verified_registration.user_verified
-
-            db.session.commit()
 
     flash(f'Successfully registered with email {email}')
     return jsonify({'redirect': url_for('profile' if current_user.is_authenticated else 'login')})

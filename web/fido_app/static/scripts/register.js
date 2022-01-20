@@ -192,21 +192,21 @@ const postNewAssertionToServer = async (credentialDataForServer, csrfToken) => {
 
 
 // Bind event listeners
-if (confirmPassword != null) {
+if (confirmPassword) {
   confirmPassword.addEventListener("blur", checkPasswordValidity);
 }
 else {
   console.warn("\"Confirm Password\" button not found on page. Skipping event listener binding.");
 }
 
-if (registrationForm != null) {
+if (registrationForm) {
   registrationForm.addEventListener("submit", submitRegistrationForm);
 }
 else {
   console.warn("Main registration form not found on page. Skipping event listener binding.");
 }
 
-if (addBiometricForm != null) {
+if (addBiometricForm) {
   addBiometricForm.addEventListener("submit", submitAddBiometricForm);
 }
 else {
