@@ -18,11 +18,15 @@ class SecureCookieSessionInterfaceWithToken(SecureCookieSessionInterface):
     def open_session(self, app, request):
         session = super().open_session(app, request)
         if 'token' not in session:
-            session['token'] = str(uuid.uuid4())
+            self.reset_session_token(session)
         return session
 
     def save_session(self, app, session, response):
         super().save_session(app, session, response)
+
+    def reset_session_token(self, session):
+        '''Reset the session token (used if the user deletes their account)'''
+        session['token'] = str(uuid.uuid4())
 
 app.session_interface = SecureCookieSessionInterfaceWithToken()
 
