@@ -126,10 +126,14 @@ def profile():
 def delete_account():
     email = current_user.email
 
-    # Delete the user in the database and log them out
-    User.query.filter_by(id=current_user.id).delete()
+    # Delete the user information, but maintain their user id
+    current_user.delete_identifiable_info()
     logout_user()
     db.session.commit()
+
+    # Reset the session token to prevent the session token from being
+    # associated with multiple user accounts
+    session['token'] = str(uuid4())
 
     flash(f'Successfully deleted the account for "{email}"', 'message')
     return redirect(url_for('login'))

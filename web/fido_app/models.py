@@ -24,12 +24,11 @@ class Session(db.Model):
 
 class User(db.Model, UserMixin):
     '''User model containing either biometric or password credentials'''
-
     id = db.Column(db.Integer, primary_key=True)
 
     # User info
-    email = db.Column(db.String(80), unique=True, nullable=False)
-    display_name = db.Column(db.String(80), unique=False, nullable=False)
+    email = db.Column(db.String(80), unique=True)
+    display_name = db.Column(db.String(80))
     high_score = db.Column(db.Integer, default=0)
 
     # Password info
@@ -37,17 +36,16 @@ class User(db.Model, UserMixin):
 
     # Webauthn info
     # TODO: move into separate table
-    credential_id = db.Column(db.String(400), unique=True, nullable=True)
-    ukey = db.Column(db.String(32), unique=True, nullable=True)
-    public_key = db.Column(db.String(65), unique=True, nullable=True)
+    credential_id = db.Column(db.String(400), unique=True)
+    ukey = db.Column(db.String(32), unique=True)
+    public_key = db.Column(db.String(65), unique=True)
     sign_count = db.Column(db.Integer, default=0)
-    authenticator_id = db.Column(db.String(40), nullable=True)
+    authenticator_id = db.Column(db.String(40))
     user_verified = db.Column(db.Boolean(), default=False)
 
     # Values_callable is needed to allow alembic to generate a correct
     # migration script
-    attestation_format = db.Column(db.Enum(AttestationFormat, validate_strings=True, values_callable=lambda x: [e.value for e in x]), nullable=True)
-
+    attestation_format = db.Column(db.Enum(AttestationFormat, validate_strings=True, values_callable=lambda x: [e.value for e in x]))
 
     # Page interaction info
     sessions = db.relationship('Session', back_populates='user')
@@ -83,7 +81,29 @@ class User(db.Model, UserMixin):
 
         if commit:
             db.session.commit()
-    
+
+    def delete_identifiable_info(self):
+        '''
+        Removes any identifiable information from the user profile, preserving the user's ID. The 
+        benefit of this is to keep track of their old interactions while deleting their account info.
+        It also allows us to save any anonymized user data associated with the interactions.
+        '''
+        # User info
+        self.email = None
+        self.display_name = None
+        self.high_score = None
+
+        # Password info
+        self.password_hash = None
+
+        # Webauthn info
+        self.credential_id = None
+        self.ukey = None
+        self.public_key = None
+        self.sign_count = 0
+        self.authenticator_id = None
+        self.user_verified = False
+        self.attestation_format = None
     
 class Interaction(db.Model):
     '''
