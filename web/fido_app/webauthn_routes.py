@@ -152,8 +152,12 @@ def verify_registration_credentials():
         # TODO: look into a single commit (not sure if possible)
         user.add_session(session, commit=True)
 
-    flash(f'Successfully registered with email {email}')
-    return jsonify({'redirect': url_for('profile' if current_user.is_authenticated else 'login')})
+    if current_user.is_authenticated:
+        flash(f'Successfully registered biometric')
+    else:
+        flash(f'Successfully registered with email {email}')
+
+    return jsonify({'redirect': url_for('profile')})
 
 
 @app.route('/webauthn/login/start', methods=['POST'])
