@@ -3,8 +3,8 @@
 This is a registration page created by Team PASS: an undergraduate Gemstone research team from UMD studying
 cybersecurity.
 {% endblock %}
-{% block title %}Registration{% endblock %}
-{% block cardTitle %}Registration{% endblock %}
+{% block title %}{% if current_user.is_authenticated %}Add Password{% else %}Registration{% endif %}{% endblock %}
+{% block cardTitle %}{% if current_user.is_authenticated %}Add Password{% else %}Registration{% endif %}{% endblock %}
 
 {% block cardBody %}
 <!--Registration Form-->

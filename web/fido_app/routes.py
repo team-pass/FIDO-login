@@ -109,8 +109,10 @@ def register():
 
     new_user.add_session(session, commit=True)
 
-    # Redirect user to login page
+    # Redirect user to login page if first time registering; otherwise, to profile
     flash(f'Successfully registered with email {email}')
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
     return redirect(url_for('login'))
 
 
