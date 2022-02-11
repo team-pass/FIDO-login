@@ -108,6 +108,7 @@ def register():
     db.session.commit()
 
     new_user.add_session(session, commit=True)
+    login_user(new_user, remember=True)
 
     # Redirect user to profile page
     flash(f'Successfully registered with email {email}')
