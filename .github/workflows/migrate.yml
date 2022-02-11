@@ -14,6 +14,9 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
+        
+        # We added -T to handle the following error:
+        # https://stackoverflow.com/questions/70855915/fix-panic-provided-file-is-not-a-console-from-docker-compose-in-github-action
         script: |
           cd ~/FIDO-login
-          docker-compose exec web python setup-db.py
+          docker-compose exec -T web python setup-db.py
