@@ -108,10 +108,11 @@ def register():
     db.session.commit()
 
     new_user.add_session(session, commit=True)
+    login_user(new_user, remember=True)
 
-    # Redirect user to login page
+    # Redirect user to profile page
     flash(f'Successfully registered with email {email}')
-    return redirect(url_for('login'))
+    return redirect(url_for('profile'))
 
 
 # Page to edit user information
@@ -119,6 +120,38 @@ def register():
 @login_required
 def profile():
     return render_template('profile.html')
+
+
+# Route to add a password to a FIDO-protected account
+@app.route('/add-password', methods=['GET', 'POST'])
+@login_required
+def add_password():
+    # Serve the page on a GET request
+    if request.method == 'GET':
+        return render_template('register.html')
+
+    # Otherwise, handle the POST request to add a password to the existing user account
+    email = current_user.email
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm-password')
+
+    # Ensure the user entered all correct information
+    if not (password and confirm_password):
+        flash('Missing required fields', 'error')
+        return redirect(url_for('add-password'))
+
+    # Ensure the passwords match
+    if password != confirm_password:
+        flash('Passwords did not match', 'error')
+        return redirect(url_for('add-password'))
+
+    # Update user entry in database
+    User.query.filter_by(email=email).first().set_password(password)
+    db.session.commit()
+
+    # Redirect user to profile page
+    flash(f'Successfully registered password')
+    return redirect(url_for('profile'))
 
 
 @app.route('/delete-account', methods=['POST'])

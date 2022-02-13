@@ -19,7 +19,7 @@ from flask import (
     flash,
 )
 from .models import User
-from flask_login import login_user
+from flask_login import current_user, login_user
 from . import app, db
 from .utils import get_display_name, validate_email
 
@@ -32,20 +32,25 @@ ORIGIN = os.getenv('ORIGIN')
 def webauthn_registration_start():
     """Starts the webauthn registration process by sending the user a random challenge"""
 
-    # MakeCredentialOptions
-    email = request.form['email']
+    # Behavior depends on whether the user is logged in and trying to add a new biometric or not
+    # Retrieve email from current_user if logged in, or from registration form if a first-time user
+    if current_user.is_authenticated:
+        email = current_user.email
+    else:
+        # MakeCredentialOptions
+        email = request.form['email']
 
-    # Verify that email and display name are acceptable
-    # TODO: improve error screen (likely using flashing)
-    if not validate_email(email):
-        flash('Invalid email', 'error')
-        return make_response(jsonify({'redirect': url_for('register')}), 401)
+        # Verify that email and display name are acceptable
+        # TODO: improve error screen (likely using flashing)
+        if not validate_email(email):
+            flash('Invalid email', 'error')
+            return make_response(jsonify({'redirect': url_for('register')}), 401)
 
-    # Ensure the user's email isn't already in use (TODO: refactor into a function for
-    # both registration stages)
-    if User.query.filter_by(email=email).first():
-        flash('Email address is already in use', 'error')
-        return make_response(jsonify({'redirect': url_for('register')}), 401)
+        # Ensure the user's email isn't already in use (TODO: refactor into a function for
+        # both registration stages)
+        if User.query.filter_by(email=email).first():
+            flash('Email address is already in use', 'error')
+            return make_response(jsonify({'redirect': url_for('register')}), 401)
 
     ukey = secrets.token_urlsafe(20)
     display_name = get_display_name(email)
@@ -62,7 +67,7 @@ def webauthn_registration_start():
         'email': email,
         'challenge': bytes_to_base64url(registration_options.challenge),
         'ukey': ukey,
-        'display_name': display_name
+        'display_name': display_name,
     }
 
     return options_to_json(registration_options)
@@ -109,32 +114,51 @@ def verify_registration_credentials():
         flash('Credential ID already exists.', 'error')
         return make_response(jsonify({'redirect': url_for('register')}), 401)
 
-    # Ensure the user's email isn't already in use (TODO: refactor into a function for
-    # both registration stages)
-    if User.query.filter_by(email=email).first():
-        flash('Email address is already in use', 'error')
-        return make_response(jsonify({'redirect': url_for('register')}), 401)
+    # If this is an existing user, update the db entry for that user
+    if current_user.is_authenticated:
+        current_user.ukey = ukey
+        current_user.public_key = bytes_to_base64url(verified_registration.credential_public_key)
+        current_user.credential_id = credential_id
+        current_user.sign_count = verified_registration.sign_count
+        current_user.authenticator_id = verified_registration.aaguid
+        current_user.attestation_format = verified_registration.fmt
+        current_user.user_verified = verified_registration.user_verified
 
-    # Create a new user
-    user = User(
-        email=email,
-        ukey=ukey,
-        display_name=display_name,
-        public_key=bytes_to_base64url(verified_registration.credential_public_key),
-        credential_id=credential_id,
-        sign_count=verified_registration.sign_count,
-        authenticator_id=verified_registration.aaguid,
-        attestation_format=verified_registration.fmt,
-        user_verified=verified_registration.user_verified
-    )
-    db.session.add(user)
-    db.session.commit()
+        db.session.commit()
 
-    # TODO: look into a single commit (not sure if possible)
-    user.add_session(session, commit=True)
+    # Create a new User entry in db if this is a first-time user
+    else:
+        # Ensure the user's email isn't already in use
+        # (TODO: refactor into a function for both registration stages)
+        if User.query.filter_by(email=email).first():
+            flash('Email address is already in use', 'error')
+            return make_response(jsonify({'redirect': url_for('register')}), 401)
 
-    flash(f'Successfully registered with email {email}')
-    return jsonify({'redirect': url_for('login')})
+        # Create a new user
+        user = User(
+            email=email,
+            ukey=ukey,
+            display_name=display_name,
+            public_key=bytes_to_base64url(verified_registration.credential_public_key),
+            credential_id=credential_id,
+            sign_count=verified_registration.sign_count,
+            authenticator_id=verified_registration.aaguid,
+            attestation_format=verified_registration.fmt,
+            user_verified=verified_registration.user_verified
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        # TODO: look into a single commit (not sure if possible)
+        user.add_session(session, commit=True)
+
+    if current_user.is_authenticated:
+        flash(f'Successfully registered biometric')
+    else:
+        flash(f'Successfully registered with email {email}')
+        login_user(user, remember=True)
+
+    return jsonify({'redirect': url_for('profile')})
 
 
 @app.route('/webauthn/login/start', methods=['POST'])

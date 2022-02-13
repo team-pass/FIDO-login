@@ -11,6 +11,7 @@
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirm-password");
 const registrationForm = document.getElementById("registration-form");
+const addBiometricForm = document.getElementById("add-biometric");
 const authMethodToggler = document.getElementById("auth-method-toggler")
 
 /**
@@ -43,6 +44,14 @@ function submitRegistrationForm() {
   if (!checkPasswordValidity()) {
     event.preventDefault();
   }
+}
+
+/**
+ * An equivalent callback for when a user begins the process of adding a biometric to their account
+ */
+function submitAddBiometricForm() {
+  event.preventDefault();
+  startBiometricRegistration(new FormData(addBiometricForm));
 }
 
 /**
@@ -183,5 +192,23 @@ const postNewAssertionToServer = async (credentialDataForServer, csrfToken) => {
 
 
 // Bind event listeners
-confirmPassword.addEventListener("blur", checkPasswordValidity);
-registrationForm.addEventListener("submit", submitRegistrationForm);
+if (confirmPassword) {
+  confirmPassword.addEventListener("blur", checkPasswordValidity);
+}
+else {
+  console.warn("\"Confirm Password\" button not found on page. Skipping event listener binding.");
+}
+
+if (registrationForm) {
+  registrationForm.addEventListener("submit", submitRegistrationForm);
+}
+else {
+  console.warn("Main registration form not found on page. Skipping event listener binding.");
+}
+
+if (addBiometricForm) {
+  addBiometricForm.addEventListener("submit", submitAddBiometricForm);
+}
+else {
+  console.warn("\"Add Biometric\" form not found on page. Skipping event listener binding.");
+}
