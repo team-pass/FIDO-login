@@ -121,7 +121,7 @@ def verify_registration_credentials():
         current_user.credential_id = credential_id
         current_user.sign_count = verified_registration.sign_count
         current_user.authenticator_id = verified_registration.aaguid
-        current_uses.attestation_format = verified_registration.fmt
+        current_user.attestation_format = verified_registration.fmt
         current_user.user_verified = verified_registration.user_verified
 
         db.session.commit()
@@ -156,6 +156,7 @@ def verify_registration_credentials():
         flash(f'Successfully registered biometric')
     else:
         flash(f'Successfully registered with email {email}')
+        login_user(user, remember=True)
 
     return jsonify({'redirect': url_for('profile')})
 
