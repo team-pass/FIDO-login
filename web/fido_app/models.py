@@ -31,6 +31,17 @@ class User(db.Model, UserMixin):
     display_name = db.Column(db.String(80))
     high_score = db.Column(db.Integer, default=0)
 
+    # Necessary for compensation tracking
+    last_login = db.Column(db.Date)
+    # Each bit, starting with the least significant bit,
+    # represents a new day since account registration.
+    # A 1 represents a day in which the user logged in;
+    # a 0 represents a skipped day.
+    # E.g., if a user registers on Mar. 1st and then
+    # logs in on the 3rd, 4th, and 6th, `login_bitfield`
+    # should store 22 (10110 in binary).
+    login_bitfield = db.Column(db.Integer, default=0)
+
     # Password info
     password_hash = db.Column(db.String(128))
 

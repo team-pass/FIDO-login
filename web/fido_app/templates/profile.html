@@ -18,6 +18,11 @@ cybersecurity.
 
 {% block cardBody %}
 <p>
+  <strong>Total Credit Earned by Logging in: </strong>
+  <span>${{ "%0.2f" % get_credit(current_user.login_bitfield) }}</span>
+</p>
+
+<p>
   <strong>High Score: </strong>
   <span>{{current_user.high_score}}</span>
 </p>

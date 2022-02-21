@@ -1,4 +1,5 @@
 import re
+from datetime import date
 
 ''' Contains useful utility functions for our Flask app '''
 def get_database_uri_from(env):
@@ -27,3 +28,31 @@ def validate_email(email):
 def get_display_name(email):
     '''Returns the first part of an email as a display name'''
     return email[: email.index('@')]
+
+
+def get_elapsed_days(startDate, endDate=date.today()):
+    '''
+    Returns the number of days between the provided start and end dates.
+    Defaults to returning the number of days between the start date and today.
+    '''
+    return (endDate - startDate).days
+
+
+def append_to_login_bitfield(bitfield, days_since_last_login):
+    '''
+    Insert (`days_since_last_login` - 1) deactivated bits to the front (most significant) end
+    of the existing `bitfield` integer. Insert one activated bit to the very front.
+    Returns the updated `bitfield` integer.
+    '''
+    if days_since_last_login <= 0:
+        return bitfield
+    
+    return bitfield + (1 << (bitfield.bit_length() + days_since_last_login - 1))
+
+
+def get_credit(login_bitfield):
+    '''
+    Returns a float representing the amount of monetary credit earned from the given
+    series of user logins. Effectively just counts the number of 1s in the integer.
+    '''
+    return 1.0 * bin(login_bitfield).count('1')

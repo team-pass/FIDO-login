@@ -1,6 +1,7 @@
 ''' ROUTING IMPLEMENTATION BASED ON DUO LABS'S '''
 
 import os, secrets
+from datetime import date
 from webauthn import (
     generate_registration_options, 
     verify_registration_response,
@@ -21,7 +22,7 @@ from flask import (
 from .models import User
 from flask_login import current_user, login_user
 from . import app, db
-from .utils import get_display_name, validate_email
+from .utils import get_display_name, validate_email, get_elapsed_days, append_to_login_bitfield
 
 
 RP_ID = os.getenv('RP_ID')
@@ -139,6 +140,7 @@ def verify_registration_credentials():
             email=email,
             ukey=ukey,
             display_name=display_name,
+            last_login=date.today(),
             public_key=bytes_to_base64url(verified_registration.credential_public_key),
             credential_id=credential_id,
             sign_count=verified_registration.sign_count,
@@ -224,6 +226,12 @@ def webauthn_verify_login():
 
     # Update counter.
     user.sign_count = authenitication_verification.new_sign_count
+    
+    # Update login trackers
+    if user.last_login != date.today():
+        user.login_bitfield = append_to_login_bitfield(user.login_bitfield, user.last_login)
+        user.last_login = date.today()
+    
     db.session.add(user)
     db.session.commit()
     user.add_session(session, commit=True)

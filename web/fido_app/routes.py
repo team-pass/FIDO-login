@@ -1,12 +1,12 @@
 ''' API ROUTE IMPLEMENTATION '''
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from uuid import uuid4
 from flask import request, session, render_template, url_for, redirect, flash, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy
 from . import app, login_manager, db
-from .utils import validate_email, get_display_name
+from .utils import validate_email, get_display_name, get_elapsed_days, append_to_login_bitfield
 from .models import User, Interaction
 
 
@@ -50,6 +50,13 @@ def login():
     if not user or not user.check_password(password):
         flash('Email or passsword is incorrect', 'error')
         return redirect(url_for('login'))
+
+    # Update login trackers
+    if user.last_login != date.today():
+        user.login_bitfield = append_to_login_bitfield(user.login_bitfield, user.last_login)
+        user.last_login = date.today()
+    db.session.add(user)
+    db.session.commit()
 
     # Log the user into the profile page
     user.add_session(session, commit=True)
@@ -101,6 +108,7 @@ def register():
     new_user = User(
         email=email,
         display_name=get_display_name(email),
+        last_login=date.today(),
     )
 
     new_user.set_password(password)
@@ -119,6 +127,8 @@ def register():
 @app.route('/profile')
 @login_required
 def profile():
+
+    
     return render_template('profile.html')
 
 
