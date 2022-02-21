@@ -55,8 +55,8 @@ def login():
     if user.last_login != date.today():
         user.login_bitfield = append_to_login_bitfield(user.login_bitfield, user.last_login)
         user.last_login = date.today()
-    db.session.add(user)
-    db.session.commit()
+        db.session.add(user)
+        db.session.commit()
 
     # Log the user into the profile page
     user.add_session(session, commit=True)

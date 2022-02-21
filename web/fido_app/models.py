@@ -104,6 +104,10 @@ class User(db.Model, UserMixin):
         self.display_name = None
         self.high_score = None
 
+        # Compensation info
+        self.last_login = None
+        self.login_bitfield = 0
+
         # Password info
         self.password_hash = None
 
