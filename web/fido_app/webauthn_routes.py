@@ -140,7 +140,7 @@ def verify_registration_credentials():
             email=email,
             ukey=ukey,
             display_name=display_name,
-            last_login=date.today(),
+            last_complete_login=date.today(),
             public_key=bytes_to_base64url(verified_registration.credential_public_key),
             credential_id=credential_id,
             sign_count=verified_registration.sign_count,
@@ -228,9 +228,13 @@ def webauthn_verify_login():
     user.sign_count = authenitication_verification.new_sign_count
     
     # Update login trackers
-    if user.last_login != date.today():
-        user.login_bitfield = append_to_login_bitfield(user.login_bitfield, user.last_login)
-        user.last_login = date.today()
+    if user.last_complete_login != date.today():
+        if 'logged_in_today' in session and session['logged_in_today'] == 'password':
+            del session['logged_in_today']
+            user.login_bitfield = append_to_login_bitfield(user.login_bitfield, user.last_complete_login)
+            user.last_complete_login = date.today()
+        else:
+            session['logged_in_today'] = 'fido2'
     
     db.session.add(user)
     db.session.commit()

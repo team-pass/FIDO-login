@@ -52,11 +52,15 @@ def login():
         return redirect(url_for('login'))
 
     # Update login trackers
-    if user.last_login != date.today():
-        user.login_bitfield = append_to_login_bitfield(user.login_bitfield, user.last_login)
-        user.last_login = date.today()
-        db.session.add(user)
-        db.session.commit()
+    if user.last_complete_login != date.today():
+        if 'logged_in_today' in session and session['logged_in_today'] == 'fido2':
+            del session['logged_in_today']
+            user.login_bitfield = append_to_login_bitfield(user.login_bitfield, user.last_complete_login)
+            user.last_complete_login = date.today()
+            db.session.add(user)
+            db.session.commit()
+        else:
+            session['logged_in_today'] = 'password'
 
     # Log the user into the profile page
     user.add_session(session, commit=True)
@@ -108,7 +112,7 @@ def register():
     new_user = User(
         email=email,
         display_name=get_display_name(email),
-        last_login=date.today(),
+        last_complete_login=date.today(),
     )
 
     new_user.set_password(password)

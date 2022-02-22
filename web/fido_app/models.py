@@ -31,8 +31,8 @@ class User(db.Model, UserMixin):
     display_name = db.Column(db.String(80))
     high_score = db.Column(db.Integer, default=0)
 
-    # Necessary for compensation tracking
-    last_login = db.Column(db.Date)
+    # Saves the last date the user logged in with both a password and FIDO2
+    last_complete_login = db.Column(db.Date)
     # Each bit, starting with the least significant bit,
     # represents a new day since account registration.
     # A 1 represents a day in which the user logged in;
@@ -105,7 +105,7 @@ class User(db.Model, UserMixin):
         self.high_score = None
 
         # Compensation info
-        self.last_login = None
+        self.last_complete_login = None
         self.login_bitfield = 0
 
         # Password info
