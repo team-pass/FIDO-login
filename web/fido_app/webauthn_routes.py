@@ -141,6 +141,7 @@ def verify_registration_credentials():
             ukey=ukey,
             display_name=display_name,
             last_complete_login=date.today(),
+            login_bitfield=0,
             public_key=bytes_to_base64url(verified_registration.credential_public_key),
             credential_id=credential_id,
             sign_count=verified_registration.sign_count,

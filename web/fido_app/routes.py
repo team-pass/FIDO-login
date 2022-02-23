@@ -113,6 +113,7 @@ def register():
         email=email,
         display_name=get_display_name(email),
         last_complete_login=date.today(),
+        login_bitfield=0,
     )
 
     new_user.set_password(password)
@@ -131,8 +132,6 @@ def register():
 @app.route('/profile')
 @login_required
 def profile():
-
-    
     return render_template('profile.html')
 
 

@@ -52,7 +52,8 @@ def append_to_login_bitfield(bitfield, days_since_last_login):
 
 def get_credit(login_bitfield):
     '''
-    Returns a float representing the amount of monetary credit earned from the given
-    series of user logins. Effectively just counts the number of 1s in the integer.
+    Returns a string representing the amount of monetary credit earned from the given
+    series of user logins. Effectively just counts the number of 1s in the integer
+    and multiplies it by the amount we credit per day.
     '''
     return 1.0 * bin(login_bitfield).count('1')
