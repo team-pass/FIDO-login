@@ -1,6 +1,7 @@
 ''' BACKEND PROJECT PACKAGE INITIALIZATION '''
 
 import uuid
+from datetime import date
 from flask import Flask
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
@@ -41,7 +42,9 @@ login_manager.login_message_category = "error"
 csrf = CSRFProtect(app)
 
 # Expose some utility functions to templates for front-end convenience
-app.jinja_env.globals.update(get_credit=get_credit)
+app.jinja_env.globals.update(
+    get_credit=get_credit,
+    date=date)
 
 # import declared routes & models
 from . import routes, webauthn_routes, models
