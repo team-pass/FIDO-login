@@ -43,6 +43,6 @@ csrf = CSRFProtect(app)
 # Expose some utility functions to templates for front-end convenience
 app.jinja_env.globals.update(get_credit=get_credit)
 
-# import declared routes
-from . import routes, webauthn_routes
+# import declared routes & models
+from . import routes, webauthn_routes, models
 

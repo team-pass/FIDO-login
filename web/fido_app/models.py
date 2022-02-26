@@ -49,7 +49,7 @@ class User(db.Model, UserMixin):
     # TODO: move into separate table
     credential_id = db.Column(db.String(400), unique=True)
     ukey = db.Column(db.String(32), unique=True)
-    public_key = db.Column(db.String(65), unique=True)
+    public_key = db.Column(db.String(400), unique=True)
     sign_count = db.Column(db.Integer, default=0)
     authenticator_id = db.Column(db.String(40))
     user_verified = db.Column(db.Boolean(), default=False)
