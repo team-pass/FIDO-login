@@ -122,3 +122,19 @@ class Interaction(db.Model):
 
     def __repr__(self):
         return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}> on page {self.page}'
+
+class LoginAttempts(db.Model):
+    '''
+    Model associating email and date with login attempt counts,
+    both successful and not.
+    '''
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Identifiers
+    email = db.Column(db.String(80), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+
+    # Counters
+    successes = db.Column(db.Integer, default=0)
+    failures = db.Column(db.Integer, default=0)

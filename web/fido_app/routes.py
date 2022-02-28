@@ -1,6 +1,6 @@
 ''' API ROUTE IMPLEMENTATION '''
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from uuid import uuid4
 from flask import request, session, render_template, url_for, redirect, flash, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
@@ -39,17 +39,42 @@ def login():
         flash('Must enter an email and a password', 'error')
         return redirect(url_for('login'))
 
+    # Get existing login attempt db entry or create new one
+    attempts = LoginAttempts.query.filter_by(email=email, date=date.today()).first()
+
+    if not attempts:
+        attempts = LoginAttempts(
+            email=email,
+            date=date.today().
+            successes=0,
+            failures=0
+        )
+
     # Check that a user has a matching email/password combo
     user = User.query.filter_by(email=email).first()
 
     if user and not user.has_password():
+        attempts.failures += 1
+        db.session.add(attempts)
+        db.commit()
+        
         flash('You have not configured a password for your account', 'error')
         return redirect(url_for('login'))
 
-    # If the user's password is incorrect, let them know
+    # If the email or password is incorrect, let them know
+    # Also update failed login count
     if not user or not user.check_password(password):
+        attempts.failures += 1
+        db.session.add(attempts)
+        db.commit()
+        
         flash('Email or passsword is incorrect', 'error')
         return redirect(url_for('login'))
+
+    # Update successful login count
+    attempts.successes += 1
+    db.session.add(attempts)
+    db.commit()
 
     # Log the user into the profile page
     user.add_session(session, commit=True)

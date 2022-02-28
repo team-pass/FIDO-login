@@ -1,6 +1,7 @@
 ''' ROUTING IMPLEMENTATION BASED ON DUO LABS'S '''
 
 import os, secrets
+from datetime import date
 from webauthn import (
     generate_registration_options, 
     verify_registration_response,
@@ -170,9 +171,25 @@ def webauthn_login_start():
         flash('Please enter a valid email', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
+    # Get existing login attempt db entry or create new one
+    attempts = LoginAttempts.query.filter_by(email=email, date=date.today()).first()
+
+    if not attempts:
+        attempts = LoginAttempts(
+            email=email,
+            date=date.today().
+            successes=0,
+            failures=0
+        )
+
     # Attempt to find user in database
+    # Update failed login count if not found
     user = User.query.filter_by(email=email).first()
     if not user or not user.credential_id:
+        attempts.failures += 1
+        db.session.add(attempts)
+        db.commit()
+        
         flash('Invalid user', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
@@ -205,6 +222,17 @@ def webauthn_verify_login():
         flash('User does not exist')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
+    # Get existing login attempt db entry or create new one
+    attempts = LoginAttempts.query.filter_by(email=user.email, date=date.today()).first()
+
+    if not attempts:
+        attempts = LoginAttempts(
+            email=email,
+            date=date.today().
+            successes=0,
+            failures=0
+        )
+
     try:
         authenitication_verification = verify_authentication_response(
             credential=credential,
@@ -216,6 +244,10 @@ def webauthn_verify_login():
             require_user_verification=True
         )
     except InvalidAuthenticationResponse as e:
+        attempts.failures += 1
+        db.session.add(attempts)
+        db.commit()
+        
         flash(f'Authentication failed. Error: {e}', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
@@ -224,6 +256,11 @@ def webauthn_verify_login():
     db.session.add(user)
     db.session.commit()
     user.add_session(session, commit=True)
+
+    # Update successful login count
+    attempts.successes += 1
+    db.session.add(attempts)
+    db.commit()
 
     # Clear login session info
     session.pop('login', None)
