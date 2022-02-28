@@ -40,6 +40,7 @@ class User(db.Model, UserMixin):
     # E.g., if a user registers on Mar. 1st and then
     # logs in on the 3rd, 4th, and 6th, `login_bitfield`
     # should store 22 (10110 in binary).
+    # Overflow occurs after 32 days. Change to db.BigInteger if necessary.
     login_bitfield = db.Column(db.Integer, default=0)
 
     # Password info
