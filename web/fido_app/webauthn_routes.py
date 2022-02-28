@@ -172,11 +172,8 @@ def webauthn_login_start():
 
     # Attempt to find user in database
     user = User.query.filter_by(email=email).first()
-    if not user:
-        flash('User does not exist', 'error')
-        return make_response(jsonify({'redirect': url_for('login')}), 401)
-    if not user.credential_id:
-        flash('User does not have biometric to sign in with', 'error')
+    if not user or not user.credential_id:
+        flash('Invalid user', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
     credential_id_bytes = base64url_to_bytes(user.credential_id)
