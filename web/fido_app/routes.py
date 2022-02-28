@@ -55,7 +55,10 @@ def login():
     if user.last_complete_login != date.today():
         if 'logged_in_today' in session and session['logged_in_today'] == 'fido2':
             del session['logged_in_today']
-            user.login_bitfield = append_to_login_bitfield(user.login_bitfield, user.last_complete_login)
+            user.login_bitfield = append_to_login_bitfield(
+                user.login_bitfield,
+                get_elapsed_days(user.last_complete_login)
+            )
             user.last_complete_login = date.today()
             db.session.add(user)
             db.session.commit()
