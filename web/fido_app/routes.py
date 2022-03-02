@@ -45,7 +45,7 @@ def login():
     if not attempts:
         attempts = LoginAttempts(
             email=email,
-            date=date.today().
+            date=date.today(),
             successes=0,
             failures=0
         )

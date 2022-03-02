@@ -177,7 +177,7 @@ def webauthn_login_start():
     if not attempts:
         attempts = LoginAttempts(
             email=email,
-            date=date.today().
+            date=date.today(),
             successes=0,
             failures=0
         )
@@ -228,7 +228,7 @@ def webauthn_verify_login():
     if not attempts:
         attempts = LoginAttempts(
             email=email,
-            date=date.today().
+            date=date.today(),
             successes=0,
             failures=0
         )
