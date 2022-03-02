@@ -7,7 +7,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy
 from . import app, login_manager, db
 from .utils import validate_email, get_display_name
-from .models import User, Interaction
+from .models import User, Interaction, LoginAttempts
 
 
 @login_manager.user_loader

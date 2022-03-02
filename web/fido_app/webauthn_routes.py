@@ -19,7 +19,7 @@ from flask import (
     make_response,
     flash,
 )
-from .models import User
+from .models import User, LoginAttempts
 from flask_login import current_user, login_user
 from . import app, db
 from .utils import get_display_name, validate_email
