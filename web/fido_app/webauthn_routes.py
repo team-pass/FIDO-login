@@ -188,7 +188,7 @@ def webauthn_login_start():
     if not user or not user.credential_id:
         attempts.failures += 1
         db.session.add(attempts)
-        db.commit()
+        db.session.commit()
         
         flash('Invalid user', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
@@ -246,7 +246,7 @@ def webauthn_verify_login():
     except InvalidAuthenticationResponse as e:
         attempts.failures += 1
         db.session.add(attempts)
-        db.commit()
+        db.session.commit()
         
         flash(f'Authentication failed. Error: {e}', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
@@ -260,7 +260,7 @@ def webauthn_verify_login():
     # Update successful login count
     attempts.successes += 1
     db.session.add(attempts)
-    db.commit()
+    db.session.commit()
 
     # Clear login session info
     session.pop('login', None)

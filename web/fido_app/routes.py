@@ -56,7 +56,7 @@ def login():
     if user and not user.has_password():
         attempts.failures += 1
         db.session.add(attempts)
-        db.commit()
+        db.session.commit()
         
         flash('You have not configured a password for your account', 'error')
         return redirect(url_for('login'))
@@ -66,7 +66,7 @@ def login():
     if not user or not user.check_password(password):
         attempts.failures += 1
         db.session.add(attempts)
-        db.commit()
+        db.session.commit()
         
         flash('Email or passsword is incorrect', 'error')
         return redirect(url_for('login'))
@@ -74,7 +74,7 @@ def login():
     # Update successful login count
     attempts.successes += 1
     db.session.add(attempts)
-    db.commit()
+    db.session.commit()
 
     # Log the user into the profile page
     user.add_session(session, commit=True)
