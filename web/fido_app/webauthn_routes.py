@@ -159,7 +159,7 @@ def verify_registration_credentials():
         flash(f'Successfully registered biometric')
     else:
         flash(f'Successfully registered with email {email}')
-        login_user(user, remember=True)
+        login_user(user, remember=False)
 
     return jsonify({'redirect': url_for('profile')})
 

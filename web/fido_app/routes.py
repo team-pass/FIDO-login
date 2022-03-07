@@ -67,7 +67,7 @@ def login():
 
     # Log the user into the profile page
     user.add_session(session, commit=True)
-    login_user(user, remember=True)
+    login_user(user, remember=False)
     return redirect(url_for('profile'))
 
 
@@ -124,7 +124,7 @@ def register():
     db.session.commit()
 
     new_user.add_session(session, commit=True)
-    login_user(new_user, remember=True)
+    login_user(new_user, remember=False)
 
     # Redirect user to profile page
     flash(f'Successfully registered with email {email}')
