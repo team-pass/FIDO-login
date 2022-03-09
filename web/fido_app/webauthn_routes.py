@@ -184,7 +184,7 @@ def webauthn_login_start():
     else:
         authentication_options = generate_authentication_options(
             rp_id=RP_ID,
-            allow_credentials=[],
+            allow_credentials=[PublicKeyCredentialDescriptor(id=bytes(1))],
         )
 
     session['login'] = {
