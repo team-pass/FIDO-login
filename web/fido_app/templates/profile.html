@@ -17,31 +17,33 @@ cybersecurity.
 {% endblock %}
 
 {% block cardBody %}
+<p>Earn credit for each day you complete all daily login tasks following your complete registration day!</p>
+
 <p>
   <strong>Total Credit Earned by Logging in: </strong>
   <span>${{ "%0.2f" % get_credit(current_user.login_bitfield) }}</span>
 </p>
 
-<p><strong>Remaining Daily Tasks</strong></p>
+<p><strong>Remaining Daily Tasks:</strong></p>
 {% if not current_user.has_password() %}
 <ul>
-  <li>Register your account with a password</li>
+  <li>Register your account with a password.</li>
 </ul>
 {% elif not current_user.credential_id %}
 <ul>
-  <li>Register your account with WebAuthn</li>
+  <li>Register your account with WebAuthn.</li>
 </ul>
 {% elif current_user.last_complete_login != date.today() %}
 <ul>
   {% if 'logged_in_today' in session and session['logged_in_today'] != 'password' %}
-    <li>Log in with a password</li>
+    <li>Log in with a password.</li>
   {% endif %}
   {% if 'logged_in_today' in session and session['logged_in_today'] != 'fido2' %}
-    <li>Log in with WebAuthn</li>
+    <li>Log in with WebAuthn.</li>
   {% endif %}
 </ul>
 {% else %}
-<span>✅ Completed all daily tasks!</span>
+<span>✅ Completed all daily tasks. Check back in tomorrow!</span>
 {% endif %}
 
 <footer>
