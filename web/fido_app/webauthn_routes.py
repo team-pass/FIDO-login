@@ -188,7 +188,8 @@ def webauthn_login_start():
         )
 
     session['login'] = {
-        'challenge': bytes_to_base64url(authentication_options.challenge)
+        'challenge': bytes_to_base64url(authentication_options.challenge),
+        'email': email
     }
 
     return options_to_json(authentication_options)
@@ -198,7 +199,7 @@ def webauthn_login_start():
 def webauthn_verify_login():
     '''Verify the user's credential attesttion during the login process'''
     challenge = session['login']['challenge']
-    email = request.form['email']
+    email = session['login']['email']
 
     # The form data is sent back as JSON-encoded text with a MIME type of 'text/plain' (stored
     # in `request.data`). Even though `application/json` would be a more accurate MIME type,
