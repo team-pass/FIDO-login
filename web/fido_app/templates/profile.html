@@ -44,13 +44,6 @@ cybersecurity.
 <span>✅ Completed all daily tasks!</span>
 {% endif %}
 
-<!-- 
-<p>
-  <strong>High Score: </strong>
-  <span>{{current_user.high_score}}</span>
-</p>
-<canvas width="400" height="400" id="snake-game" class="card"></canvas> -->
-
 <footer>
   {% if current_user.password_hash %}
     <a id="add-password" class="btn btn-outline-primary btn-block profile-action disabled" href="/add-password">Password Already Registered</a>
@@ -77,7 +70,6 @@ cybersecurity.
 {% endblock %}
 
 {% block customJS %}
-<!-- <script src="{{ url_for('static', filename='scripts/snake-game.js') }}"></script> -->
 <script src="{{ url_for('static', filename='scripts/lib/utils.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/register.js') }}"></script>
 {% endblock %}
