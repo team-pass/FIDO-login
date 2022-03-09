@@ -55,7 +55,7 @@ def login():
 
     if user and not user.has_password():
         # Update failed login count
-        attempts.failures += 1
+        attempts.failures = attempts.failures + 1
         db.session.add(attempts)
         db.session.commit()
         
@@ -65,7 +65,7 @@ def login():
     # If the email or password is incorrect, let them know
     # Also update failed login count
     if not user or not user.check_password(password):
-        attempts.failures += 1
+        attempts.failures += attempts.failures + 1
         db.session.add(attempts)
         db.session.commit()
         
@@ -73,7 +73,7 @@ def login():
         return redirect(url_for('login'))
 
     # Update successful login count
-    attempts.successes += 1
+    attempts.successes = attempts.successes + 1
     db.session.add(attempts)
     db.session.commit()
     

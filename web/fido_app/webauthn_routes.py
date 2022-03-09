@@ -238,7 +238,7 @@ def webauthn_verify_login():
         )
     except InvalidAuthenticationResponse as e:
         # Update failed login count
-        attempts.failures += 1
+        attempts.failures = attempts.failures + 1
         db.session.add(attempts)
         db.session.commit()
         
@@ -266,7 +266,7 @@ def webauthn_verify_login():
         user.add_session(session, commit=True)
 
         # Update successful login count
-        attempts.successes += 1
+        attempts.successes = attempts.successes + 1
         db.session.add(attempts)
         db.session.commit()
 
