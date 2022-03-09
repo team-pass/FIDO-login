@@ -22,7 +22,7 @@ from flask import (
 from .models import User, LoginAttempts
 from flask_login import current_user, login_user
 from . import app, db
-from .utils import get_display_name, validate_email
+from .utils import get_display_name, validate_email, get_elapsed_days, append_to_login_bitfield
 
 
 RP_ID = os.getenv('RP_ID')
@@ -140,6 +140,8 @@ def verify_registration_credentials():
             email=email,
             ukey=ukey,
             display_name=display_name,
+            last_complete_login=date.today(),
+            login_bitfield=0,
             public_key=bytes_to_base64url(verified_registration.credential_public_key),
             credential_id=credential_id,
             sign_count=verified_registration.sign_count,
@@ -157,7 +159,7 @@ def verify_registration_credentials():
         flash(f'Successfully registered biometric')
     else:
         flash(f'Successfully registered with email {email}')
-        login_user(user, remember=True)
+        login_user(user, remember=False)
 
     return jsonify({'redirect': url_for('profile')})
 
@@ -253,6 +255,19 @@ def webauthn_verify_login():
 
     # Update counter.
     user.sign_count = authenitication_verification.new_sign_count
+    
+    # Update login trackers
+    if user.last_complete_login != date.today():
+        if 'logged_in_today' in session and session['logged_in_today'] == 'password':
+            del session['logged_in_today']
+            user.login_bitfield = append_to_login_bitfield(
+                user.login_bitfield,
+                get_elapsed_days(user.last_complete_login)
+            )
+            user.last_complete_login = date.today()
+        else:
+            session['logged_in_today'] = 'fido2'
+    
     db.session.add(user)
     db.session.commit()
     user.add_session(session, commit=True)

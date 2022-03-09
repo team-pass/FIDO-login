@@ -1,6 +1,7 @@
 ''' BACKEND PROJECT PACKAGE INITIALIZATION '''
 
 import uuid
+from datetime import date
 from flask import Flask
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
@@ -8,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.sessions import SecureCookieSessionInterface
 from .config import Config
+from .utils import get_credit
 
 # Create instance of Flask application
 app = Flask(__name__)
@@ -39,6 +41,11 @@ login_manager.login_message_category = "error"
 # Adding CSRFProtection
 csrf = CSRFProtect(app)
 
-# import declared routes
-from . import routes, webauthn_routes
+# Expose some utility functions to templates for front-end convenience
+app.jinja_env.globals.update(
+    get_credit=get_credit,
+    date=date)
+
+# import declared routes & models
+from . import routes, webauthn_routes, models
 

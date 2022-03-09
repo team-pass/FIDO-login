@@ -31,6 +31,18 @@ class User(db.Model, UserMixin):
     display_name = db.Column(db.String(80))
     high_score = db.Column(db.Integer, default=0)
 
+    # Saves the last date the user logged in with both a password and FIDO2
+    last_complete_login = db.Column(db.Date)
+    # Each bit, starting with the least significant bit,
+    # represents a new day since account registration.
+    # A 1 represents a day in which the user logged in;
+    # a 0 represents a skipped day.
+    # E.g., if a user registers on Mar. 1st and then
+    # logs in on the 3rd, 4th, and 6th, `login_bitfield`
+    # should store 22 (10110 in binary).
+    # Overflow occurs after 32 days. Change to db.BigInteger if necessary.
+    login_bitfield = db.Column(db.Integer, default=0)
+
     # Password info
     password_hash = db.Column(db.String(128))
 
@@ -38,7 +50,7 @@ class User(db.Model, UserMixin):
     # TODO: move into separate table
     credential_id = db.Column(db.String(400), unique=True)
     ukey = db.Column(db.String(32), unique=True)
-    public_key = db.Column(db.String(65), unique=True)
+    public_key = db.Column(db.String(400), unique=True)
     sign_count = db.Column(db.Integer, default=0)
     authenticator_id = db.Column(db.String(40))
     user_verified = db.Column(db.Boolean(), default=False)
@@ -93,6 +105,10 @@ class User(db.Model, UserMixin):
         self.display_name = None
         self.high_score = None
 
+        # Compensation info
+        self.last_complete_login = None
+        self.login_bitfield = 0
+
         # Password info
         self.password_hash = None
 
@@ -116,7 +132,7 @@ class Interaction(db.Model):
     session_token = db.Column(db.String(40), db.ForeignKey('session.token'))
     element = db.Column(db.String(32), nullable=False)
     event = db.Column(db.Enum('focus', 'click', 'submit', 'load', validate_strings=True), nullable=False)
-    page = db.Column(db.Enum('/register', '/login', validate_strings=True), nullable=False)
+    page = db.Column(db.Enum('/register', '/login', '/add-password', validate_strings=True), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
     group_id = db.Column(db.String(40), nullable=False)
 
