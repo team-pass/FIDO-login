@@ -1,12 +1,12 @@
 ''' API ROUTE IMPLEMENTATION '''
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from uuid import uuid4
 from flask import request, session, render_template, url_for, redirect, flash, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy
 from . import app, login_manager, db
-from .utils import validate_email, get_display_name
+from .utils import validate_email, get_display_name, get_elapsed_days, append_to_login_bitfield
 from .models import User, Interaction
 
 
@@ -51,9 +51,23 @@ def login():
         flash('Email or passsword is incorrect', 'error')
         return redirect(url_for('login'))
 
+    # Update login trackers
+    if user.last_complete_login != date.today():
+        if 'logged_in_today' in session and session['logged_in_today'] == 'fido2':
+            del session['logged_in_today']
+            user.login_bitfield = append_to_login_bitfield(
+                user.login_bitfield,
+                get_elapsed_days(user.last_complete_login)
+            )
+            user.last_complete_login = date.today()
+            db.session.add(user)
+            db.session.commit()
+        else:
+            session['logged_in_today'] = 'password'
+
     # Log the user into the profile page
     user.add_session(session, commit=True)
-    login_user(user, remember=True)
+    login_user(user, remember=False)
     return redirect(url_for('profile'))
 
 
@@ -101,6 +115,8 @@ def register():
     new_user = User(
         email=email,
         display_name=get_display_name(email),
+        last_complete_login=date.today(),
+        login_bitfield=0,
     )
 
     new_user.set_password(password)
@@ -108,7 +124,7 @@ def register():
     db.session.commit()
 
     new_user.add_session(session, commit=True)
-    login_user(new_user, remember=True)
+    login_user(new_user, remember=False)
 
     # Redirect user to profile page
     flash(f'Successfully registered with email {email}')

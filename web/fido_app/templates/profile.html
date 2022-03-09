@@ -8,7 +8,7 @@ cybersecurity.
 {% block cardTitle %}
 <div class="d-flex flex-row justify-content-between">
   <span>{{current_user.display_name}}'s Account</span>
-
+  
   <form action="{{ url_for('logout') }}" method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <button type="submit" class="btn btn-primary btn-block">Log Out</button>
@@ -18,10 +18,30 @@ cybersecurity.
 
 {% block cardBody %}
 <p>
+  <strong>Total Credit Earned by Logging in: </strong>
+  <span>${{ "%0.2f" % get_credit(current_user.login_bitfield) }}</span>
+</p>
+
+<p><strong>Remaining Daily Tasks</strong></p>
+{% if current_user.last_complete_login != date.today() %}
+<ul>
+  {% if session['logged_in_today'] != 'password' %}
+    <li>Login with Passwords</li>
+  {% endif %}
+  {% if session['logged_in_today'] != 'fido2' %}
+    <li>Login with WebAuthn</li>
+  {% endif %}
+</ul>
+{% else %}
+<span>✅ Completed all daily tasks!</span>
+{% endif %}
+
+<!-- 
+<p>
   <strong>High Score: </strong>
   <span>{{current_user.high_score}}</span>
 </p>
-<canvas width="400" height="400" id="snake-game" class="card"></canvas>
+<canvas width="400" height="400" id="snake-game" class="card"></canvas> -->
 
 <footer>
   {% if current_user.password_hash %}
