@@ -9,6 +9,7 @@ from . import app, login_manager, db
 from .utils import validate_email, get_display_name, get_elapsed_days, append_to_login_bitfield
 from .models import User, Interaction
 
+MIN_PASSWORD_LENGTH = 8
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -95,6 +96,11 @@ def register():
     if not (email and password and confirm_password):
         flash('Missing required fields', 'error')
         return redirect(url_for('register'))
+    
+    # Ensure the password's length is longer than 8
+    if len(password) < MIN_PASSWORD_LENGTH:
+        flash('Passwords must have at least 8 characters', 'error')
+        return redirect(url_for('register'))
 
     # Ensure the passwords match
     if password != confirm_password:
@@ -154,6 +160,11 @@ def add_password():
     # Ensure the user entered all correct information
     if not (password and confirm_password):
         flash('Missing required fields', 'error')
+        return redirect(url_for('add-password'))
+    
+    # Ensure the password's length is longer than 8
+    if len(password) < MIN_PASSWORD_LENGTH:
+        flash('Passwords must have at least 8 characters', 'error')
         return redirect(url_for('add-password'))
 
     # Ensure the passwords match

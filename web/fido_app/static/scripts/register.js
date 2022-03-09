@@ -15,15 +15,15 @@ const addBiometricForm = document.getElementById("add-biometric");
 const authMethodToggler = document.getElementById("auth-method-toggler")
 
 /**
- * Also checks the passowrd length is greater than 8 
- * character requirements)
- */
- function checkPasswordLength() {
-  const isPasswordLong = password.length >= 8;
-  confirmPassword.setCustomValidity(isPasswordLong ? "" : "Passwords must at least have 8 characters");
-
+* Checks that the passowrd length is greater than 8 characters
+*/
+function checkPasswordLength() {
+  const isPasswordLong = password.value.length >= 8;
+  password.setCustomValidity(isPasswordLong ? "" : "Passwords must at least have 8 characters");
+  
   return isPasswordLong;
 }
+
 /** 
 * Ensures that the password and confirm password inputs have matching values
 * @returns whether the password fields are valid
@@ -31,7 +31,7 @@ const authMethodToggler = document.getElementById("auth-method-toggler")
 function checkPasswordValidity() {
   const isPasswordValid = password.value === confirmPassword.value;
   confirmPassword.setCustomValidity(isPasswordValid ? "" : "Passwords must match");
-
+  
   return isPasswordValid;
 }
 
@@ -48,9 +48,14 @@ function submitRegistrationForm() {
   }
 
   // Otherwise, make sure the supplied password is of proper length and valid
-  if (!checkPasswordLength() || !checkPasswordValidity()) {
+  
+  if (!checkPasswordLength()) {
     event.preventDefault();
-  }  
+  }
+
+  // if (!checkPasswordValidity()) {
+  //   event.preventDefault();
+  // }
   
 }
 
@@ -200,6 +205,13 @@ const postNewAssertionToServer = async (credentialDataForServer, csrfToken) => {
 
 
 // Bind event listeners
+if (password) {
+  password.addEventListener("blur", checkPasswordLength);
+}
+else {
+  console.warn("\"Password\" button not found on page. Skipping event listener binding.");
+}
+
 if (confirmPassword) {
   confirmPassword.addEventListener("blur", checkPasswordValidity);
 }
