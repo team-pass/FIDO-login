@@ -54,6 +54,7 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user and not user.has_password():
+        # Update failed login count
         attempts.failures += 1
         db.session.add(attempts)
         db.session.commit()

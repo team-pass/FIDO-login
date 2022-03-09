@@ -173,33 +173,19 @@ def webauthn_login_start():
         flash('Please enter a valid email', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
-    # Get existing login attempt db entry or create new one
-    attempts = LoginAttempts.query.filter_by(email=email, date=date.today()).first()
-
-    if not attempts:
-        attempts = LoginAttempts(
-            email=email,
-            date=date.today(),
-            successes=0,
-            failures=0
-        )
-
     # Attempt to find user in database
-    # Update failed login count if not found
     user = User.query.filter_by(email=email).first()
-    if not user or not user.credential_id:
-        attempts.failures += 1
-        db.session.add(attempts)
-        db.session.commit()
-        
-        flash('Invalid user', 'error')
-        return make_response(jsonify({'redirect': url_for('login')}), 401)
-
-    credential_id_bytes = base64url_to_bytes(user.credential_id)
-    authentication_options = generate_authentication_options(
-        rp_id=RP_ID,
-        allow_credentials=[PublicKeyCredentialDescriptor(id=credential_id_bytes)],
-    )
+    if user and user.credential_id:
+        credential_id_bytes = base64url_to_bytes(user.credential_id)
+        authentication_options = generate_authentication_options(
+            rp_id=RP_ID,
+            allow_credentials=[PublicKeyCredentialDescriptor(id=credential_id_bytes)],
+        )
+    else:
+        authentication_options = generate_authentication_options(
+            rp_id=RP_ID,
+            allow_credentials=[],
+        )
 
     session['login'] = {
         'challenge': bytes_to_base64url(authentication_options.challenge)
@@ -212,20 +198,24 @@ def webauthn_login_start():
 def webauthn_verify_login():
     '''Verify the user's credential attesttion during the login process'''
     challenge = session['login']['challenge']
+    email = request.form['email']
 
     # The form data is sent back as JSON-encoded text with a MIME type of 'text/plain' (stored
     # in `request.data`). Even though `application/json` would be a more accurate MIME type,
     # using `text-plain` allows us to call the built-in `RegistrationCredential.parse_raw` method.
     credential = AuthenticationCredential.parse_raw(request.data)
 
-    # Ensure a matching user exists
+    # Attempt to find a matching user and set variables accordingly
     user = User.query.filter_by(credential_id=credential.id).first()
-    if not user:
-        flash('User does not exist')
-        return make_response(jsonify({'redirect': url_for('login')}), 401)
+    if user:
+        pub_key = user.public_key
+        sign_count = user.sign_count
+    else:
+        pub_key = ''
+        sign_count = 0
 
     # Get existing login attempt db entry or create new one
-    attempts = LoginAttempts.query.filter_by(email=user.email, date=date.today()).first()
+    attempts = LoginAttempts.query.filter_by(email=email, date=date.today()).first()
 
     if not attempts:
         attempts = LoginAttempts(
@@ -241,11 +231,12 @@ def webauthn_verify_login():
             expected_challenge=base64url_to_bytes(challenge),
             expected_rp_id=RP_ID,
             expected_origin=ORIGIN,
-            credential_public_key=base64url_to_bytes(user.public_key),
-            credential_current_sign_count=user.sign_count,
+            credential_public_key=base64url_to_bytes(pub_key),
+            credential_current_sign_count=sign_count,
             require_user_verification=True
         )
     except InvalidAuthenticationResponse as e:
+        # Update failed login count
         attempts.failures += 1
         db.session.add(attempts)
         db.session.commit()
@@ -253,32 +244,36 @@ def webauthn_verify_login():
         flash(f'Authentication failed. Error: {e}', 'error')
         return make_response(jsonify({'redirect': url_for('login')}), 401)
 
-    # Update counter.
-    user.sign_count = authenitication_verification.new_sign_count
+    if user:
+        # Update counter.
+        user.sign_count = authenitication_verification.new_sign_count
     
-    # Update login trackers
-    if user.last_complete_login != date.today():
-        if 'logged_in_today' in session and session['logged_in_today'] == 'password':
-            del session['logged_in_today']
-            user.login_bitfield = append_to_login_bitfield(
-                user.login_bitfield,
-                get_elapsed_days(user.last_complete_login)
-            )
-            user.last_complete_login = date.today()
-        else:
-            session['logged_in_today'] = 'fido2'
+        # Update login trackers
+        if user.last_complete_login != date.today():
+            if 'logged_in_today' in session and session['logged_in_today'] == 'password':
+                del session['logged_in_today']
+                user.login_bitfield = append_to_login_bitfield(
+                    user.login_bitfield,
+                    get_elapsed_days(user.last_complete_login)
+                )
+                user.last_complete_login = date.today()
+            else:
+                session['logged_in_today'] = 'fido2'
     
-    db.session.add(user)
-    db.session.commit()
-    user.add_session(session, commit=True)
+        db.session.add(user)
+        db.session.commit()
+        user.add_session(session, commit=True)
 
-    # Update successful login count
-    attempts.successes += 1
-    db.session.add(attempts)
-    db.session.commit()
+        # Update successful login count
+        attempts.successes += 1
+        db.session.add(attempts)
+        db.session.commit()
 
-    # Clear login session info
-    session.pop('login', None)
+        # Clear login session info
+        session.pop('login', None)
 
-    login_user(user)
-    return jsonify({'redirect': url_for('profile')})
+        login_user(user)
+        return jsonify({'redirect': url_for('profile')})
+
+    flash(f'Authentication failed.', 'error')
+    return make_response(jsonify({'redirect': url_for('login')}), 401)
