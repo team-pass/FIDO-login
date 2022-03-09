@@ -15,12 +15,19 @@ const addBiometricForm = document.getElementById("add-biometric");
 const authMethodToggler = document.getElementById("auth-method-toggler")
 
 /**
- * Ensures that the password and confirm password inputs have matching values
- * TODO: possibly add more stringent password requirements (like length and
+ * Also checks the passowrd length is greater than 8 
  * character requirements)
- *
- * @returns whether the password fields are valid
  */
+ function checkPasswordLength() {
+  const isPasswordLong = password.length >= 8;
+  confirmPassword.setCustomValidity(isPasswordLong ? "" : "Passwords must at least have 8 characters");
+
+  return isPasswordLong;
+}
+/** 
+* Ensures that the password and confirm password inputs have matching values
+* @returns whether the password fields are valid
+*/
 function checkPasswordValidity() {
   const isPasswordValid = password.value === confirmPassword.value;
   confirmPassword.setCustomValidity(isPasswordValid ? "" : "Passwords must match");
@@ -40,10 +47,11 @@ function submitRegistrationForm() {
     startBiometricRegistration(new FormData(registrationForm));
   }
 
-  // Otherwise, make sure the supplied password is valid
-  if (!checkPasswordValidity()) {
+  // Otherwise, make sure the supplied password is of proper length and valid
+  if (!checkPasswordLength() || !checkPasswordValidity()) {
     event.preventDefault();
-  }
+  }  
+  
 }
 
 /**
