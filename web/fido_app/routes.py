@@ -6,8 +6,8 @@ from flask import request, session, render_template, url_for, redirect, flash, j
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy
 from . import app, login_manager, db
-from .utils import validate_email, get_display_name, get_elapsed_days, append_to_login_bitfield
-from .models import User, Interaction
+from .utils import get_or_create, validate_email, get_display_name, get_elapsed_days, append_to_login_bitfield
+from .models import Session, User, Interaction
 
 
 @login_manager.user_loader
@@ -196,10 +196,14 @@ def submit_interactions():
     # Used to tag every interaction submitted in one request
     request_id = str(uuid4())
 
+    # If this is the first session with this token, we need this line to ensure the foreign key
+    # between interactions and sessions is properly setup
+    session_model = get_or_create(db.session, Session, token=session['token'])
+
     for log in data:
         try:
             new_interaction = Interaction(
-                session_token=session['token'],
+                session_token=session_model.token,
                 element=log['element'],
                 event=log['event'],
                 page=log['page'],
