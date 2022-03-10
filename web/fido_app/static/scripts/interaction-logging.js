@@ -41,7 +41,7 @@ function addInteraction(elementId, event) {
     authMethod = 0
     if (event == "submit") {
         try {
-            authMethod = methodToggler.getAttribute("aria-expanded") === "true" ? 2 : 1;// document.getElementById("auth-method-toggler").getAttribute("aria-expanded") === "true" ? 1 : 2;
+            authMethod = methodToggler.getAttribute("aria-expanded") === "true" ? 2 : 1;
         } catch(e) {
             console.error("Was not able to access the methodToggler", e);        
         }
