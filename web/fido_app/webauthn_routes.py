@@ -182,6 +182,8 @@ def webauthn_login_start():
             allow_credentials=[PublicKeyCredentialDescriptor(id=credential_id_bytes)],
         )
     else:
+        # Prepare nonsense options so we can still proceed to verification step
+        # This helps hide the true point of failure during WebAuthn authentication
         authentication_options = generate_authentication_options(
             rp_id=RP_ID,
             allow_credentials=[PublicKeyCredentialDescriptor(id=bytes(1))],
@@ -206,18 +208,18 @@ def webauthn_verify_login():
     # using `text-plain` allows us to call the built-in `RegistrationCredential.parse_raw` method.
     credential = AuthenticationCredential.parse_raw(request.data)
 
-    # Attempt to find a matching user and set variables accordingly
+    # Attempt to find a matching user and obtain fields necessary for authentication
     user = User.query.filter_by(credential_id=credential.id).first()
     if user:
         pub_key = user.public_key
         sign_count = user.sign_count
     else:
+        # Prepare invalid values for authentication to obfuscate point of failure
         pub_key = ''
         sign_count = 0
 
     # Get existing login attempt db entry or create new one
     attempts = LoginAttempts.query.filter_by(email=email, date=date.today()).first()
-
     if not attempts:
         attempts = LoginAttempts(
             email=email,
