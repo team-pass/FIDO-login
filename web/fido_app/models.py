@@ -152,5 +152,7 @@ class LoginAttempts(db.Model):
     date = db.Column(db.Date, nullable=False)
 
     # Counters
-    successes = db.Column(db.Integer, default=0)
-    failures = db.Column(db.Integer, default=0)
+    password_successes = db.Column(db.Integer, default=0)
+    password_failures = db.Column(db.Integer, default=0)
+    fido_successes = db.Column(db.Integer, default=0)
+    fido_failures = db.Column(db.Integer, default=0)

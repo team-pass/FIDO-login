@@ -224,8 +224,10 @@ def webauthn_verify_login():
         attempts = LoginAttempts(
             email=email,
             date=date.today(),
-            successes=0,
-            failures=0
+            password_successes=0,
+            password_failures=0,
+            fido_successes=0,
+            fido_failures=0
         )
 
     try:
@@ -240,7 +242,7 @@ def webauthn_verify_login():
         )
     except InvalidAuthenticationResponse as e:
         # Update failed login count
-        attempts.failures = attempts.failures + 1
+        attempts.fido_failures += 1
         db.session.add(attempts)
         db.session.commit()
         
@@ -268,7 +270,7 @@ def webauthn_verify_login():
         user.add_session(session, commit=True)
 
         # Update successful login count
-        attempts.successes = attempts.successes + 1
+        attempts.fido_successes += 1
         db.session.add(attempts)
         db.session.commit()
 
