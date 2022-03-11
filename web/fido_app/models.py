@@ -1,4 +1,5 @@
 ''' Contains all database models for SQLAlchemy '''
+from .utils import get_random_session_token
 from . import db
 import logging
 from flask_login import UserMixin
@@ -79,16 +80,19 @@ class User(db.Model, UserMixin):
     def add_session(self, flask_session, commit=False):
         '''Associates the session with the given id to this particular user'''
         session = Session.query.filter_by(token=flask_session["token"]).first()
-        
-        if session and session.user_id:
-            # Don't add a session token that is already associated to a user
-            if session.user_id != self.id:
-                logger.warn(f"This session token is attached to {session.user}, but is also being used by {self}!")
-            else:
-                logger.info(f"Session already being tracked for {session.user}.")
 
+        if session and session.user_id == self.id:
+            logger.info(f"Session already being tracked for {session.user}.")
             return
-        
+
+        if session and session.user_id != self.id:
+            logger.warn(f"This session token is attached to {session.user}, but is also being used by {self}!"
+                + "Creating a fresh session token for {self}.")
+            
+            # Create a fresh session token for the current user (that isn't stored in the DB currently)
+            flask_session["token"] = get_random_session_token()
+            session = None
+
         if session:
             logger.info(f"Attaching existing session to {self}")
             session.user_id = self.id
