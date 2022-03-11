@@ -50,21 +50,12 @@ def login():
             failures=0
         )
 
-    # Check that a user has a matching email/password combo
+    # Get user by email
     user = User.query.filter_by(email=email).first()
 
-    if user and not user.has_password():
-        # Update failed login count
-        attempts.failures = attempts.failures + 1
-        db.session.add(attempts)
-        db.session.commit()
-        
-        flash('You have not configured a password for your account', 'error')
-        return redirect(url_for('login'))
-
-    # If the email or password is incorrect, let them know
-    # Also update failed login count
-    if not user or not user.check_password(password):
+    # If user doesn't exist, doesn't have a password, or the email/password is incorrect,
+    # do not log in; also update failed login count
+    if not user or not user.has_password() or not user.check_password(password):
         attempts.failures += attempts.failures + 1
         db.session.add(attempts)
         db.session.commit()
