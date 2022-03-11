@@ -90,6 +90,9 @@ class User(db.Model, UserMixin):
                 + "Creating a fresh session token for {self}.")
             
             # Create a fresh session token for the current user (that isn't stored in the DB currently)
+            # TODO: figure out how to prevent the most recent batch of interactions from being 
+            # misattributed to the old user that this session token was attached to.
+            # Alternatively, we could just make the session tokens less persistent
             flask_session["token"] = get_random_session_token()
             session = None
 
