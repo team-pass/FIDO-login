@@ -53,9 +53,9 @@ function submitRegistrationForm() {
     event.preventDefault();
   }
 
-  // if (!checkPasswordValidity()) {
-  //   event.preventDefault();
-  // }
+  if (!checkPasswordValidity()) {
+    event.preventDefault();
+  }
   
 }
 
@@ -209,14 +209,14 @@ if (password) {
   password.addEventListener("blur", checkPasswordLength);
 }
 else {
-  console.warn("\"Password\" button not found on page. Skipping event listener binding.");
+  console.warn("\"Password\" not found on page. Skipping event listener binding.");
 }
 
 if (confirmPassword) {
   confirmPassword.addEventListener("blur", checkPasswordValidity);
 }
 else {
-  console.warn("\"Confirm Password\" button not found on page. Skipping event listener binding.");
+  console.warn("\"Confirm Password\" not found on page. Skipping event listener binding.");
 }
 
 if (registrationForm) {
