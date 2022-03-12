@@ -38,10 +38,10 @@ function attachTimingListeners(element) {
  */
 function addInteraction(elementId, event) {
     // Finds out what method (webauthn or passwords) is being used
-    authMethod = 0
+    authMethod = 'did not attempt';
     if (event == "submit") {
         try {
-            authMethod = methodToggler.getAttribute("aria-expanded") === "true" ? 2 : 1;
+            authMethod = methodToggler.getAttribute("aria-expanded") === "true" ? 'password' : 'fido';
         } catch(e) {
             console.error("Was not able to access the methodToggler", e);        
         }
