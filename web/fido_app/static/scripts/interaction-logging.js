@@ -37,9 +37,20 @@ function attachTimingListeners(element) {
  * @param {String} event the type of interaction (e.g., `focus` or `click` event)
  */
 function addInteraction(elementId, event) {
+    // Finds out what method (webauthn or passwords) is being used
+    authMethod = 'did not attempt';
+    if (event == "submit") {
+        try {
+            authMethod = methodToggler.getAttribute("aria-expanded") === "true" ? 'password' : 'fido';
+        } catch(e) {
+            console.error("Was not able to access the methodToggler", e);        
+        }
+    }
+    
     interactions.push({
         timestampMs: Date.now(),
         element: elementId,
+        login_method: authMethod,
         page: window.location.pathname,
         event,
     });
