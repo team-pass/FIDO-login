@@ -17,31 +17,34 @@ cybersecurity.
 {% endblock %}
 
 {% block cardBody %}
+<p>Earn credit for each day you complete all daily login tasks following your complete registration day!</p>
+
 <p>
   <strong>Total Credit Earned by Logging in: </strong>
   <span>${{ "%0.2f" % get_credit(current_user.login_bitfield) }}</span>
 </p>
 
-<p><strong>Remaining Daily Tasks</strong></p>
-{% if current_user.last_complete_login != date.today() %}
+<p><strong>Remaining Daily Tasks:</strong></p>
+{% if not current_user.has_password() %}
 <ul>
-  {% if session['logged_in_today'] != 'password' %}
-    <li>Login with Passwords</li>
+  <li>Register your account with a password.</li>
+</ul>
+{% elif not current_user.credential_id %}
+<ul>
+  <li>Register your account with WebAuthn.</li>
+</ul>
+{% elif current_user.last_complete_login != date.today() %}
+<ul>
+  {% if 'logged_in_today' in session and session['logged_in_today'] != 'password' %}
+    <li>Log in with a password.</li>
   {% endif %}
-  {% if session['logged_in_today'] != 'fido2' %}
-    <li>Login with WebAuthn</li>
+  {% if 'logged_in_today' in session and session['logged_in_today'] != 'fido2' %}
+    <li>Log in with WebAuthn.</li>
   {% endif %}
 </ul>
 {% else %}
-<span>✅ Completed all daily tasks!</span>
+<span>✅ Completed all daily tasks. Check back in tomorrow!</span>
 {% endif %}
-
-<!-- 
-<p>
-  <strong>High Score: </strong>
-  <span>{{current_user.high_score}}</span>
-</p>
-<canvas width="400" height="400" id="snake-game" class="card"></canvas> -->
 
 <footer>
   {% if current_user.password_hash %}
@@ -69,7 +72,6 @@ cybersecurity.
 {% endblock %}
 
 {% block customJS %}
-<script src="{{ url_for('static', filename='scripts/snake-game.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/lib/utils.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/register.js') }}"></script>
 {% endblock %}

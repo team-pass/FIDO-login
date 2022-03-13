@@ -149,9 +149,28 @@ class Interaction(db.Model):
     session_token = db.Column(db.String(40), db.ForeignKey('session.token'))
     element = db.Column(db.String(32), nullable=False)
     event = db.Column(db.Enum('focus', 'click', 'submit', 'load', validate_strings=True), nullable=False)
+    login_method = db.Column(db.Enum('did not attempt', 'fido', 'password', validate_strings=True), nullable=False)
     page = db.Column(db.Enum('/register', '/login', '/add-password', validate_strings=True), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
     group_id = db.Column(db.String(40), nullable=False)
 
     def __repr__(self):
         return f'<Session token {self.session_token} triggered event {self.event} at {self.timestamp}> on page {self.page}'
+
+class LoginAttempts(db.Model):
+    '''
+    Model associating email and date with login attempt counts,
+    both successful and not.
+    '''
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Identifiers
+    email = db.Column(db.String(80), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+
+    # Counters
+    password_successes = db.Column(db.Integer, default=0)
+    password_failures = db.Column(db.Integer, default=0)
+    fido_successes = db.Column(db.Integer, default=0)
+    fido_failures = db.Column(db.Integer, default=0)
