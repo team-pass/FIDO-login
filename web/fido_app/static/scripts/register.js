@@ -15,16 +15,23 @@ const addBiometricForm = document.getElementById("add-biometric");
 const authMethodToggler = document.getElementById("auth-method-toggler")
 
 /**
- * Ensures that the password and confirm password inputs have matching values
- * TODO: possibly add more stringent password requirements (like length and
- * character requirements)
- *
- * @returns whether the password fields are valid
- */
+* Checks that the passowrd length is greater than 8 characters
+*/
+function checkPasswordLength() {
+  const isPasswordLong = password.value.length >= 8;
+  password.setCustomValidity(isPasswordLong ? "" : "Passwords must at least have 8 characters");
+  
+  return isPasswordLong;
+}
+
+/** 
+* Ensures that the password and confirm password inputs have matching values
+* @returns whether the password fields are valid
+*/
 function checkPasswordValidity() {
   const isPasswordValid = password.value === confirmPassword.value;
   confirmPassword.setCustomValidity(isPasswordValid ? "" : "Passwords must match");
-
+  
   return isPasswordValid;
 }
 
@@ -40,10 +47,16 @@ function submitRegistrationForm() {
     startBiometricRegistration(new FormData(registrationForm));
   }
 
-  // Otherwise, make sure the supplied password is valid
+  // Otherwise, make sure the supplied password is of proper length and valid
+  
+  if (!checkPasswordLength()) {
+    event.preventDefault();
+  }
+
   if (!checkPasswordValidity()) {
     event.preventDefault();
   }
+  
 }
 
 /**
@@ -192,11 +205,18 @@ const postNewAssertionToServer = async (credentialDataForServer, csrfToken) => {
 
 
 // Bind event listeners
+if (password) {
+  password.addEventListener("blur", checkPasswordLength);
+}
+else {
+  console.warn("\"Password\" not found on page. Skipping event listener binding.");
+}
+
 if (confirmPassword) {
   confirmPassword.addEventListener("blur", checkPasswordValidity);
 }
 else {
-  console.warn("\"Confirm Password\" button not found on page. Skipping event listener binding.");
+  console.warn("\"Confirm Password\" not found on page. Skipping event listener binding.");
 }
 
 if (registrationForm) {
