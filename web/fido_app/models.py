@@ -132,6 +132,7 @@ class Interaction(db.Model):
     session_token = db.Column(db.String(40), db.ForeignKey('session.token'))
     element = db.Column(db.String(32), nullable=False)
     event = db.Column(db.Enum('focus', 'click', 'submit', 'load', validate_strings=True), nullable=False)
+    login_method = db.Column(db.Enum('did not attempt', 'fido', 'password', validate_strings=True), nullable=False)
     page = db.Column(db.Enum('/register', '/login', '/add-password', validate_strings=True), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
     group_id = db.Column(db.String(40), nullable=False)
