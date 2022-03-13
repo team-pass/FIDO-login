@@ -7,7 +7,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy
 from . import app, login_manager, db
 from .utils import validate_email, get_display_name, get_elapsed_days, append_to_login_bitfield
-from .models import User, Interaction
+from .models import User, Interaction, LoginAttempts
 
 MIN_PASSWORD_LENGTH = 8
 
@@ -40,18 +40,37 @@ def login():
         flash('Must enter an email and a password', 'error')
         return redirect(url_for('login'))
 
-    # Check that a user has a matching email/password combo
+    # Get existing login attempt db entry or create new one
+    attempts = LoginAttempts.query.filter_by(email=email, date=date.today()).first()
+
+    if not attempts:
+        attempts = LoginAttempts(
+            email=email,
+            date=date.today(),
+            password_successes=0,
+            password_failures=0,
+            fido_successes=0,
+            fido_failures=0
+        )
+
+    # Get user by email
     user = User.query.filter_by(email=email).first()
 
-    if user and not user.has_password():
-        flash('You have not configured a password for your account', 'error')
-        return redirect(url_for('login'))
-
-    # If the user's password is incorrect, let them know
-    if not user or not user.check_password(password):
+    # If user doesn't exist, doesn't have a password, or the email/password is incorrect,
+    # do not log in; also update failed login count
+    if not user or not user.has_password() or not user.check_password(password):
+        attempts.password_failures += 1
+        db.session.add(attempts)
+        db.session.commit()
+        
         flash('Email or passsword is incorrect', 'error')
         return redirect(url_for('login'))
 
+    # Update successful login count
+    attempts.password_successes += 1
+    db.session.add(attempts)
+    db.session.commit()
+    
     # Update login trackers
     if user.last_complete_login != date.today():
         if 'logged_in_today' in session and session['logged_in_today'] == 'fido2':
