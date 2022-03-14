@@ -1,5 +1,6 @@
 import re
 from datetime import date
+import uuid
 
 ''' Contains useful utility functions for our Flask app '''
 def get_database_uri_from(env):
@@ -57,3 +58,20 @@ def get_credit(login_bitfield):
     and multiplies it by the amount we credit per day.
     '''
     return 1.0 * bin(login_bitfield).count('1')
+
+def get_or_create(db_session, model, **kwargs):
+    '''
+    Gets or create an instance of a particular model with the given attributes
+    See https://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
+    '''
+    instance = db_session.query(model).filter_by(**kwargs).first()
+
+    if not instance:
+        instance = model(**kwargs)
+        db_session.add(instance)
+
+    return instance
+
+def get_random_session_token():
+    '''Create a random session token string'''
+    return str(uuid.uuid4())

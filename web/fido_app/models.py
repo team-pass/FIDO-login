@@ -1,4 +1,5 @@
 ''' Contains all database models for SQLAlchemy '''
+from .utils import get_random_session_token
 from . import db
 import logging
 from flask_login import UserMixin
@@ -14,7 +15,7 @@ class Session(db.Model):
 
     token = db.Column(db.String(40), primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     user = db.relationship('User', back_populates='sessions')
 
     interactions = db.relationship('Interaction')
@@ -76,20 +77,36 @@ class User(db.Model, UserMixin):
     def has_password(self):
         return self.password_hash is not None
 
-    def add_session(self, session: Session, commit=False):
+    def add_session(self, flask_session, commit=False):
         '''Associates the session with the given id to this particular user'''
+        session = Session.query.filter_by(token=flask_session["token"]).first()
 
-        # Don't add a session token that already exists
-        if Session.query.filter_by(token=session["token"]).first():
-            logger.info(f"Session already being tracked, not adding to {self}")
+        if session and session.user_id == self.id:
+            logger.info(f"Session already being tracked for {session.user}.")
             return
 
-        new_session = Session(
-            token=session["token"],
-            user_id=self.id,
-        )
+        if session and session.user_id != self.id:
+            logger.warn(f"This session token is attached to {session.user}, but is also being used by {self}!"
+                + "Creating a fresh session token for {self}.")
+            
+            # Create a fresh session token for the current user (that isn't stored in the DB currently)
+            # TODO: figure out how to prevent the most recent batch of interactions from being 
+            # misattributed to the old user that this session token was attached to.
+            # Alternatively, we could just make the session tokens less persistent
+            flask_session["token"] = get_random_session_token()
+            session = None
 
-        db.session.add(new_session)
+        if session:
+            logger.info(f"Attaching existing session to {self}")
+            session.user_id = self.id
+        else:
+            logger.info(f"Attaching new session to {self}")
+            session = Session(
+                token=flask_session["token"],
+                user_id=self.id,
+            )
+
+        db.session.add(session)
 
         if commit:
             db.session.commit()

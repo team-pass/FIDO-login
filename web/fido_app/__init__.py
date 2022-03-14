@@ -1,6 +1,5 @@
 ''' BACKEND PROJECT PACKAGE INITIALIZATION '''
 
-import uuid
 from datetime import date
 from flask import Flask
 from flask_login import LoginManager
@@ -9,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.sessions import SecureCookieSessionInterface
 from .config import Config
-from .utils import get_credit
+from .utils import get_credit, get_random_session_token
 
 # Create instance of Flask application
 app = Flask(__name__)
@@ -20,7 +19,7 @@ class SecureCookieSessionInterfaceWithToken(SecureCookieSessionInterface):
     def open_session(self, app, request):
         session = super().open_session(app, request)
         if 'token' not in session:
-            session['token'] = str(uuid.uuid4())
+            session['token'] = get_random_session_token()
         return session
 
     def save_session(self, app, session, response):
